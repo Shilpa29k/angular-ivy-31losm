@@ -1,0 +1,25 @@
+<span>SortBy:<span 
+(click)="sortAsc()">ASC</span><br/><span
+(click)="sortDesc()">DESC</span></span>
+<ul>
+	<li *ngFor="let blog of blogs">
+		{{blog.name}} &nbsp; {{blog.date|date}}<br/>{{blog.Description}}
+		<br/><button (click)="editBlog(blog)">Edit</button>&nbsp;
+		<button (click)="deleteBlog(blog)">Delete</button>
+	</li>
+</ul>
+<button (click)="addNewBlog()">Add Blog</button>
+<br/>
+
+<span *ngIf="isEnable">
+  <h2 *ngIf="!isEdit">Add New Blog</h2><br/>
+  <h2 *ngIf="isEdit">Edit Blog</h2><br/>
+ 
+  <label for="fname">Name</label><br>
+  <input type="text" id="fname" name="fname" [(ngModel)]="blog.name"><br>
+  <label for="lname">Description</label><br>
+  <textarea type="text" id="lname" name="lname"
+  [(ngModel)]="blog.Description"></textarea><br/>
+  <button (click)="addBlog()" *ngIf="!isEdit">Add</button>
+   <button (click)="updateBlog()" *ngIf="isEdit">Update</button>
+</span>

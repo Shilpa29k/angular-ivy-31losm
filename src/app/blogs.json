@@ -1,0 +1,31 @@
+[
+  {
+    "Id":1,
+    "name": "Travel",
+    "Description": "Travel blogs are becoming more popular each day. Due to cheap air travel, people are traveling more than ever",
+    "date" : "Fri May 04 2020 01:17:07 GMT-0700 (PDT)"
+  },
+  {
+    "Id":2,
+   "name": "Music",
+    "Description": "Music blogs has a wide audience who search for critiques on the best and trending music.",
+    "date" : "Fri June 04 2020 01:17:07 GMT-0700 (PDT)"
+  },
+  {
+    "Id":3,
+   "name": "Food",
+    "Description": "Food blogs are another popular blog type. It attracts a lot of readers who are interested in recipes, ingredients, healthy eating",
+    "date" : "Fri May 04 2020 01:17:07 GMT-0700 (PDT)"
+  },
+  {
+    "Id":4,
+    "name": "Fitness",
+    "Description": "Fitness blogs has been a hot trend since they cover important topics like health and general fitness.",
+    "date" : "Fri August 04 2012 01:17:07 GMT-0700 (PDT)"
+  },
+  {
+    "Id":5,
+    "name": "Sports",
+    "Description": "Sports blogs are another interesting type of blogs online. Every country in the world has different sports and every sport has its own stars.",
+    "date" : "Fri April 06 2019 01:17:07 GMT-0700 (PDT)"
+  }]
