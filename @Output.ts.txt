@@ -1,0 +1,190 @@
+import { Component, OnInit, OnDestroy, EventEmitter, Output, Input } from '@angular/core';
+import { FormBuilder, FormGroup } from '@angular/forms';
+import { StationProfileNewService } from 'src/app/shared/services/administration/station-profile-new.service';
+import { Subject } from 'rxjs/internal/Subject';
+import { takeUntil } from 'rxjs/operators';
+import { ActivatedRoute } from '@angular/router';
+import { StationUpdateModel, StationCommentModel } from 'src/app/shared/models/administration/station-profile-new.model';
+import { StationSearchModel } from 'src/app/shared/models/administration/station-profile-search-model';
+
+@Component({
+  selector: 'app-update-location-pop-up',
+  templateUrl: './update-location-pop-up.component.html',
+  styleUrls: ['./update-location-pop-up.component.css']
+})
+export class UpdateLocationPopUpComponent implements OnInit, OnDestroy {
+
+
+  editStation: FormGroup;
+  handledWingData: any;
+  stationType = [];
+  stationUpdateModelData = {} as StationUpdateModel;
+  stationDataBasedOnId = {} as StationSearchModel;
+  locationDetails: any;
+  stationCommentData = {} as StationCommentModel;
+  wingValueByName: number;
+  @Input() typeValue: string;
+  @Input() awData: string;
+  @Input() bwData: string;
+  @Output() notifyParent: EventEmitter<boolean> = new EventEmitter();
+  @Input() stationId:number;
+  @Input() mode: string;
+  @Input() commentId:number;
+  @Input() action:string;
+  private ngUnsubscribe = new Subject();
+
+  constructor(private formBuilder: FormBuilder, private stationprofileservice: StationProfileNewService,
+    private route: ActivatedRoute) {
+  }
+
+  
+  ngOnInit() {
+    this.stationUpdateFormGroup();
+    if (this.mode == 'Type' && this.action == "Edit") {
+      this.getTypeData();
+    }else if((this.mode == 'AboveHandler' && this.action == "Edit") || (this.mode == "BelowHandler"  && this.action == "Edit")) {
+      this.getWingData();
+    }else if(this.mode =="Comment" && this.action=="Edit") {
+      this.getCommentsDataforQuil();
+    }
+  }
+
+
+ /**
+* @method getWingId
+* @description
+* Method is used to get the Value of Above and Below Wing where arg=Name Of Wing
+*/
+  getWingId(arg) {
+    if (arg != '--') {
+      this.handledWingData.forEach(element => {
+        if (element.name == arg) {
+          this.wingValueByName = element.value;
+          this.editStation.patchValue({ 'statType': this.wingValueByName });
+        }
+      })
+    }
+  }
+
+  /**
+* @method stationUpdateFormGroup
+* @description
+* Method is used to create form builder object for editStation
+*/
+  stationUpdateFormGroup() {
+    this.editStation = this.formBuilder.group({
+      statType: ['']
+    })
+  }
+
+    /**
+   * @method getTypeData
+   * @description
+   * Method is used to populate Type values in drop down
+   */
+ 
+  getTypeData() {
+    this.stationprofileservice.getTypeData().pipe(takeUntil(this.ngUnsubscribe)).subscribe(result => {
+      if (result != null) {
+        this.stationType = result;
+        if (this.mode == "Type") {
+          this.stationType.forEach((e, i) => {
+            if (e == this.typeValue) {
+              this.editStation.controls['statType'].setValue(this.stationType[i]);
+            }
+          })
+        }
+      }
+    })
+  }
+
+
+
+  /**
+    * @method getCommentsDataforQuil
+    * @description
+    * Method is used to get comment values from datatabse and populate in quill-editor
+    */
+  getCommentsDataforQuil() {
+    this.stationDataBasedOnId.airLine = "";
+    this.stationDataBasedOnId.station = "";
+    this.stationDataBasedOnId.isopen = 1;
+    this.stationDataBasedOnId.stationId = this.stationId; 
+    this.stationprofileservice.searchdata(this.stationDataBasedOnId).pipe(takeUntil(this.ngUnsubscribe)).subscribe(result => {
+      if (result != null) {
+        this.locationDetails = result[0];
+        this.editStation.controls['statType'].setValue(this.locationDetails.comment);
+      }
+    })
+  }
+
+  /**
+    * @method getWingData
+    * @description
+    * Method is used to populate wing values in dropdown
+    */
+  getWingData() {
+    this.stationprofileservice.getInitialData().pipe(takeUntil(this.ngUnsubscribe)).subscribe(responseList => {
+      this.handledWingData = responseList[4];
+      if (this.mode == 'AboveHandler') {
+        this.getWingId(this.awData);
+      } else if(this.mode == 'BelowHandler') {
+        this.getWingId(this.bwData);
+      }
+
+    });
+  }
+
+  /**
+  * @method saveStationType
+  * @description
+  * Method is used to POST the edited values of Type, Comments, Above Wing Ground Handler, Below Wing Ground Handler 
+  */
+  saveStationType() {
+    this.stationUpdateModelData.stationId = this.stationId;
+    this.stationUpdateModelData.type = this.mode;
+    this.stationUpdateModelData.value = this.editStation.controls.statType.value;
+    this.stationprofileservice.stationUpdateData(this.stationUpdateModelData).pipe(takeUntil(this.ngUnsubscribe)).subscribe(response => {
+ 
+      this.closePopUp();
+    });
+  }
+  /**
+    * @method saveComment
+    * @description
+    * Method is used to POST the edited comment
+    */
+  saveComment() {
+    this.stationCommentData.comment = this.editStation.controls.statType.value;
+    if (this.action == "Edit") {
+      this.stationCommentData.commentId = this.commentId;
+      this.stationprofileservice.editCommentData(this.stationCommentData, this.stationId).pipe(takeUntil(this.ngUnsubscribe)).subscribe(response => {
+        this.closePopUp();
+      });
+    } else if(this.action == "Add") {
+      this.stationCommentData.commentId=0;
+      this.stationprofileservice.postCommentData(this.stationCommentData, this.stationId).pipe(takeUntil(this.ngUnsubscribe)).subscribe(response => {
+        this.closePopUp();
+      });
+    }
+  }
+
+    /**
+* @method ngOnDestroy
+* @description
+* Method is used to unsubscribe all subscription called when component destroyed.
+*/
+  ngOnDestroy(): void {
+    this.ngUnsubscribe.next();
+    this.ngUnsubscribe.complete();
+  }
+  /**
+    * @method closePopUp
+    * @description
+    * Method is used to close the pop-up window
+    */
+  closePopUp() {
+     this.notifyParent.emit(true);
+  }
+
+}
