@@ -1,0 +1,95 @@
+/**
+ * @class DateTime
+ * @description
+ * This class used to handle date and time
+*/
+export class DateTime {
+  constructor(){}
+    /**
+     * @method resetTime
+     * @description
+     * This method used to retuen current date and time
+     */
+         now(date: Date): Date {
+            let time = new Date();
+            if (date == null) {
+                date = new Date();
+            }
+            date.setHours(time.getHours(), time.getMinutes(), time.getSeconds(), time.getMilliseconds());
+            return date;
+        }
+    
+        /**
+     * @method resetTime
+     * @description
+     * This method used to reset time
+     */
+         resetTime(date: Date): Date {
+            if (date == null) {
+                date = new Date();
+            }
+            date.setHours(0, 0, 0, 1);
+            return date;
+        }
+    /**
+     * @method getDateTime
+     * @description
+     * This method handles date / time
+     */
+         getDateTime(date: Date, time: Date): Date {
+            if (date == null) {
+                date = new Date();
+            }
+            if (time == null) {
+                time = new Date();
+            }
+            return new Date(date.getFullYear(), date.getMonth(), date.getDate(), time.getHours(), time.getMinutes(), time.getSeconds(), time.getMilliseconds());
+        }
+    
+/**
+  * @method compareDate
+  * @description
+  * comapre date with today date
+  * @param date 
+  */
+  compareDate( date: Date  ):boolean {  
+    var todayDate = new Date() //Today Date  
+    var date2 = new Date(date);
+
+  
+    if (todayDate < date2) {  
+   
+         return false;
+     }else {  
+      
+         return true;
+     }  
+  
+ } 
+
+    /**
+     * @method getDateTime
+     * @description
+     * This method handles locale date / time
+     */
+     getLocaleDateTime(date: Date): String {
+        if (date == null) {
+            date = new Date();
+        }
+       
+        return new Date(date).toLocaleString();
+    }
+    
+     /**
+      * @method adjustForTimezone
+      * @description
+      * adjust timzone for dates
+      */
+      adjustForTimezone(date: Date): Date {
+        let formattedDate = new Date(date);
+        var timeOffsetInMS: number = formattedDate.getTimezoneOffset() * 60000;
+        formattedDate.setTime(formattedDate.getTime() - timeOffsetInMS);
+        return formattedDate;
+      }
+    
+    }

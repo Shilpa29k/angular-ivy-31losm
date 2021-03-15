@@ -1,0 +1,71 @@
+import { Injectable } from '@angular/core';
+
+@Injectable({
+    providedIn: 'root'
+})
+export class AppFunctions {
+
+    public static getFormattedDate(date: Date, format: string) {
+        let year = date.getFullYear();
+        let month = (1 + date.getMonth()).toString(); //.padStart(2, '0');
+        if(month.length == 1){
+            month = '0'+ month
+        }
+        let day = date.getDate().toString(); //.padStart(2, '0');
+        if(day.length == 1){
+            day = '0'+ day
+        }
+        let dateString = '';
+        switch (format) {
+            case 'MM-dd-yyyy':
+                dateString = month + '-' + day + '-' + year;
+                break;
+            case 'en-US':
+                dateString = date.toLocaleDateString('en-US').replace(/[^ -~]/g, '')
+            default:
+                dateString = month + '/' + day + '/' + year;
+                break;
+        }
+
+        return dateString;
+    }
+    public static getFormattedDateFromString(date: string, format: string) {
+        const inputDate = new Date(date);
+        let year = inputDate.getFullYear();
+        let month = (1 + inputDate.getMonth()).toString(); //.padStart(2, '0');
+        if(month.length == 1){
+            month = '0'+ month
+        }
+        let day = inputDate.getDate().toString(); //.padStart(2, '0');
+        if(day.length == 1){
+            day = '0'+ day
+        }
+        let dateString = '';
+        switch (format) {
+            case 'MM-dd-yyyy':
+                dateString = month + '-' + day + '-' + year;
+                break;
+
+            default:
+                dateString = month + '/' + day + '/' + year;
+                break;
+        }
+        return dateString;
+    }
+
+    public static fileDownload(data, fileName: string) {
+        const byteCharacters = atob(data);
+        const byteNumbers = new Array(byteCharacters.length);
+        for (var i = 0; i < byteCharacters.length; i++)
+            byteNumbers[i] = byteCharacters.charCodeAt(i);
+
+        const byteArray = new Uint8Array(byteNumbers);
+        const blob = new Blob([byteArray]);
+        const blobURL = window.URL.createObjectURL(blob);
+        const anchor = document.createElement("a");
+        anchor.download = fileName;
+        anchor.href = blobURL;
+        anchor.click();
+        anchor.remove();
+    }
+}

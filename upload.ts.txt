@@ -1,0 +1,380 @@
+<div class="container border">
+    <div class="row">
+        <div class="col-md-12 header-div">
+            <label class="lbl-style lbl-rnd">UPLOAD RANDOM LIST</label>
+        </div>
+    </div>
+    <div class="row mt-2">
+        <div class="col-md-12">
+            <a class="a-style" [routerLink]="['/safety/randomtesting']">Back</a>
+        </div>
+    </div>
+    <form [formGroup]="uploadForm">
+        <div class="form-group row col-md-7 mt-2">
+            <div class="col-md-3">
+                <label class="font-weight-bold">Description:
+                    <span class="danger">*</span>
+                </label>
+            </div>
+            <div class="col-md-4">
+                <input type="text" formControlName="description" maxlength="50" class="form-control mx-sm-3">
+                <div class="invalid-feedback ml-3" *ngIf="isError">Required</div>
+            </div>
+        </div>
+    </form>
+    <div class="row mt-2">
+        <div class="col-md-12">
+            <fieldset>
+                <legend>Import</legend>
+                <div class="row">
+                    <div class="col-md-6 form-group">
+                        Select File:
+                        <input #fileInput type="file" (change)="upload(fileInput.files)" value="Choose File" class="ml-2" />
+                        <label class="invalid-feedback">{{this.successMessage}}</label>
+                    </div>
+                    <div class="col-md-6 text-right">
+                        <a target="_blank" href="assets/common/documents/safety/ImportSample.csv" class="a-style mr-2" download="ImportSample.csv">View Sample</a>
+                    </div>
+                    <div class="col-md-12 mt-2 mb-2">
+                        <input type="button" value="Upload" (click)="uploadPool()" />
+                    </div>
+                </div>
+            </fieldset>
+        </div>
+        <div class="col-md-12 mt-2">
+            Instructions;
+            <ul style="list-style-type: lower-alpha" class="ml-4 mt-2">
+                <li>Only .csv file format is allowed.</li>
+                <li>Columns of the uploaded file should match with the sample file.</li>
+                <li>At least one record should exist in the uploaded file.</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+
+
+import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { DrugTestRandom, RandomTestingService } from '../../shared';
+@Component({
+  selector: 'xjt-upload-pool',
+  templateUrl: './uploadPool.component.html',
+  styleUrls: ['./uploadPool.component.css']
+})
+/**
+ * @class
+ * @description
+ *  It handles upload random pool list and create quarter functionality of safety feature.
+ */
+export class UploadPoolComponent implements OnInit {
+  @ViewChild('fileInput', { static: false }) fileInput: ElementRef;
+  uploadForm: FormGroup;
+  uploadedFile: File;
+  isError: boolean;
+  successMessage: string;
+  /**
+  * @method
+  * @description
+  * returns all controls of uploadForm 
+  */
+  get f() { return this.uploadForm.controls; }
+  /**
+  * @constructor
+  * @description
+  * inject all dependencies
+  * @param formBuilder object of FormBuilder
+  * @param randomTestingservice object of RandomTestingService   
+  */
+  constructor(private formBuilder: FormBuilder, private randomTestingservice: RandomTestingService) { }
+  /**
+  * @method
+  * for component initialization
+  */
+  ngOnInit() {
+    this.uploadForm = this.formBuilder.group({
+      description: ['', Validators.required]
+    });
+  }
+  /**
+   * @method
+   * handles the uploaded files.
+   */
+  upload(files) {
+    if (files.length === 0) {
+      this.uploadedFile = null;
+      return false;
+    }
+    else {
+      this.uploadedFile = files[0];
+    }
+  }
+  /**
+   * @method
+   * this method create quarter with uploaded csv format employee list na d quarter description.
+   */
+  uploadPool() {
+    this.successMessage = '';
+    if (this.f.description.value == '') {
+      this.isError = true;
+      return false;
+    }
+    if (this.uploadedFile) {
+      if (this.uploadedFile.name.split('.').pop() != "csv") {
+        this.successMessage = "This is not an acceptable format. Please upload .csv file only.";
+        this.fileInput.nativeElement.value = "";
+        this.uploadedFile = null;
+        return false;
+      }
+      else {
+        this.isError = false;
+        this.randomTestingservice.uploadPool(this.uploadedFile, this.f.description.value).subscribe(
+          response => {
+            if (response != undefined) {
+              this.successMessage = response;
+              this.fileInput.nativeElement.value = "";
+              this.uploadedFile = null;
+            }
+          }
+        );
+      }
+    }
+    else {
+      this.successMessage = "Please select file to upload.";
+      return false;
+    }
+  }
+
+}
+------------------------------------------------------------------------
+import { Injectable } from '@angular/core';
+import { DataService, EndPoint, methods } from '../../../backend';
+import { Observable, of } from 'rxjs';
+import { catchError, map } from 'rxjs/operators';
+import { HttpHeaders, HttpErrorResponse, HttpParams } from '@angular/common/http';
+import { DrugTestQuarter, DrugTestRandom } from '../../models';
+import { CrewmemberFilterModel } from '../../models/safety/crewmember-filter.model';
+/**
+ * @class
+ * @description
+ * This service handles all the api related calls using DataService for safety randomtesting functionality.
+ */
+@Injectable()
+export class RandomTestingService {
+  /**
+     * @constructor
+     * @description
+     * inject all dependencies
+     * @param dataService object of DataService  
+     */
+  constructor(private dataService: DataService) { }
+  /**
+   * @method
+   * @description
+   * Make Api call using dataservice to get quarters on the basis of parameters 
+   * @param empNo - string value for employee number having in quarter.
+   * @param openOnly -boolean value define whether quarter is closed or not .
+   */
+  getQuarters(empNo: string, openOnly: boolean): Observable<DrugTestQuarter[]> {
+    const url = EndPoint.SAFETYAPIURL;
+    let params = new HttpParams();
+    params = params.append('empNo', empNo);
+    params = params.append('openOnly', openOnly.toString());
+    return this.dataService.request(url, methods.GET, null, params)
+      .pipe(map(quarters => {
+        if (!Array.isArray(quarters)) {
+          return [quarters]
+        }
+        return quarters;
+      }),
+        catchError(error => { return Observable.throw(error); })
+      );
+  }
+  /**
+ * @method
+ * @description
+ * Make Api call using dataservice to close quarter on the basis of parameter 
+ * @param quarterId - string value for quarterId which is to be closed. 
+ */
+  closeQuarter(quarterId: string): Observable<boolean> {
+    if (quarterId != undefined && quarterId != '') {
+      const url = EndPoint.SAFETYAPIURL + '/close';
+      let params = new HttpParams();
+      params = params.append('quarterId', quarterId);
+      return this.dataService.request(url, methods.PUT, null, params)
+        .pipe(map(result => {
+          return result;
+        }),
+          catchError(error => { return Observable.throw(error); })
+        );
+    }
+    return of(false);
+  }
+  /**
+ * @method
+ * @description
+ * Make Api call using dataservice to get quarter on the basis of parameter 
+ * @param quarterId - string value for quarterId which is to be retrieved.
+ */
+  getQuarter(quarterId: string): Observable<DrugTestQuarter> {
+    if (quarterId != undefined && quarterId != '') {
+      const url = EndPoint.SAFETYAPIURL + '/' + quarterId;
+      return this.dataService.request(url, methods.GET)
+        .pipe(map(result => {
+          return result;
+        }),
+          catchError(error => { return Observable.throw(error); })
+        );
+    }
+    return of(null);
+  }
+  /**
+   * @method
+   * @description
+   * Make Api call using dataservice to get random pools on the basis of parameters 
+   * @param empNo - string value of employee number 
+   * @param empName - string value of employee name
+   * @param displayCompleted - boolean value defines whether to display only open quarters or both open and closed.
+   * @param quarterId - string value for quarterId.
+   */
+  getRandomPools(empNo: string, empName: string, displayCompleted: boolean, quarterId: string): Observable<DrugTestRandom[]> {
+    const url = EndPoint.SAFETYAPIURL + '/randomPool';
+    let params = new HttpParams();
+    let paramList: string[] = ["empNo", "empName", "displayCompleted", "quarterId"];
+    params = params.append(paramList[0], empNo);
+    params = params.append(paramList[1], empName);
+    params = params.append(paramList[2], displayCompleted.toString());
+    params = params.append(paramList[3], quarterId);
+    return this.dataService.request(url, methods.GET, null, params)
+      .pipe(map(pools => {
+        if (!Array.isArray(pools)) {
+          return [pools]
+        }
+        return pools;
+      }),
+        catchError(error => { return Observable.throw(error); })
+      );
+  }
+  /**
+  * @method
+  * @description
+  * Make Api call using dataservice to get random pool on the basis of parameter
+  * @param randomId- string value of randomId to get random pool
+  */
+  getRandomPool(randomId: string) {
+    if (randomId != undefined && randomId != '') {
+      const url = EndPoint.SAFETYAPIURL + '/randomPool/' + randomId;
+      return this.dataService.request(url, methods.GET)
+        .pipe(map(result => {
+          return result;
+        }),
+          catchError(error => { return Observable.throw(error); })
+        );
+    }
+    else {
+      return of(null);
+    }
+  }
+  /** 
+   * @method
+   * @description
+   * Make Api call using dataservice to create random pool on the basis of parameters   
+   * @param file- file parameter of type File  .csv file contains list of employees eligible for testing.  
+   * @param description - string value contain description for quarter.
+   */
+  uploadPool(file: File, description: string) {
+    const url = EndPoint.SAFETYAPIURL + '/upload';
+    const formData: FormData = new FormData();
+    formData.append('File', file);
+    formData.append('Description', description);
+    return this.dataService.requestFile(url, formData)
+      .pipe(map(result => {
+        if (result.response != null && result.response != undefined)
+          return result.response;
+      }),
+        catchError(error => { return Observable.throw(error); })
+      );
+
+  }
+  /** 
+   * @method
+   * @description
+   * Make Api call using dataservice to edit random pool on the basis of parameter.   
+   * @param drugtestRandom :object of drugTestRandom which is to be updated in database.
+   */
+  editRandomPool(drugtestRandom: DrugTestRandom) {
+    if (drugtestRandom != null) {
+      const url = EndPoint.SAFETYAPIURL + '/randomPool';
+      return this.dataService.request(url, methods.POST, drugtestRandom, null)
+        .pipe(map(result => {
+          return result;
+        }),
+          catchError(error => { return Observable.throw(error); })
+        );
+    }
+    else {
+      return of(null);
+    }
+  }
+/** 
+   * @method
+   * @description
+   * Make Api call using dataservice to get crew availability data.      
+   */
+  getCrewAvailabiltyData(filterModel: CrewmemberFilterModel) {
+    const url = EndPoint.SAFETYAPIURL + '/crewGroundAvailablity';
+    let params = new HttpParams();
+    let paramList: string[] = ["station", "searchDate", "minGroundTime", "start", "end","quarterId"];
+    params = params.append(paramList[0], filterModel.station);
+    params = params.append(paramList[1], filterModel.searchDate);
+    params = params.append(paramList[2], filterModel.minGroundTime.toString());
+    params = params.append(paramList[3], filterModel.start);
+    params = params.append(paramList[4], filterModel.end);
+    params = params.append(paramList[5], filterModel.quarterId.toString());
+    return this.dataService.request(url, methods.GET, null, params)
+      .pipe(map(result => {      
+        return result.response;        
+      }),
+        catchError(error => { return Observable.throw(error); })
+      );
+  }
+     /** 
+   * @method
+   * @description
+   * Make Api call using dataservice to schedule test.   
+   * @param drugtestRandom :object of drugTestRandom which is to be updated in database.
+   */
+    scheduleTest(randomId: string, scheduleDate: string) {
+    const url = EndPoint.SAFETYAPIURL + '/scheduleTest';
+    let params = new HttpParams();
+    let paramList: string[] = ["randomId", "scheduleDate"];
+    params = params.append(paramList[0], randomId);
+    params = params.append(paramList[1], scheduleDate);   
+    return this.dataService.request(url, methods.PUT, null, params)
+      .pipe(map(result => {
+        return result.response;
+      }),
+        catchError(error => { return Observable.throw(error); })
+      );
+  }
+  /** 
+   * @method
+   * @description
+   * Make Api call using dataservice to get crewmember schedule.   
+   
+   */
+  getCrewMemberSchedule(empNo:number,searchDate:string){
+    const url = EndPoint.SAFETYAPIURL + '/crewmemberSchedule';
+    let params = new HttpParams();
+    let paramList: string[] = ["empNo", "searchDate"];
+    params = params.append(paramList[0], empNo.toString());
+    params = params.append(paramList[1], searchDate);   
+    return this.dataService.request(url, methods.GET, null, params)
+      .pipe(map(result => {
+        return result.response;
+      }),
+        catchError(error => { return Observable.throw(error); })
+      );
+  }
+}

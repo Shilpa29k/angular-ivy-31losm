@@ -1,0 +1,294 @@
+import { Component, OnInit, OnDestroy, Input, Output, EventEmitter } from '@angular/core';
+import { FormGroup, FormBuilder, Validators } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
+import { PartnershipRequestService } from 'src/app/shared/services/administration/partnership.request.service';
+import { FlightAttendantPartnerShip } from 'src/app/shared/models/administration/partnership-request.model';
+import { takeUntil } from 'rxjs/operators';
+import { Subject } from 'rxjs/internal/Subject';
+import { DateFormate } from 'src/app/shared/Date/date-formate';
+import { XjtModalService } from 'src/app/shared/xjt-modal-popup/xjt-modal-service/xjt.modal.service';
+
+@Component({
+  selector: 'app-fa-partner-ship',
+  templateUrl: './fa-partner-ship.component.html',
+  styleUrls: ['./fa-partner-ship.component.css']
+})
+
+export class FaPartnerShipComponent implements OnInit, OnDestroy {
+
+  mode: string;
+  domicileCode: string;
+  employeeList = [];
+  emplyeeValue: [];
+  erjFlight: FormGroup;
+  flightAttendantPartnerShip = {} as FlightAttendantPartnerShip;
+  errorMsg: string = '';
+  employeeFilteredList = [];
+  selectedPartnerName: string;
+  selectedPartnerCode: string;
+  dateFormate: DateFormate;
+
+
+  @Input() modalMode: string;
+  @Input() domicile: string;
+  @Input() partnerId: number;
+  @Input() empNo: number;
+  @Input() jobShareEmpNo: number;
+  @Input() selectedEffectiveDate: Date;
+  @Output() notifyParent: EventEmitter<boolean> = new EventEmitter();
+
+  private ngUnsubscribe = new Subject();
+
+  constructor(private formBuilder: FormBuilder,
+    private router: ActivatedRoute,
+    private partnershipRequestService: PartnershipRequestService,
+    private modalservice: XjtModalService) {
+    this.dateFormate = new DateFormate();
+  }
+
+  ngOnInit() {
+    this.mode = this.modalMode;
+    this.domicileCode = this.domicile;
+    this.erjPartnershipForm();
+    if (this.mode == 'Add') {
+      this.getEmployeeList(this.domicileCode);
+    } else {
+      this.filterNamesByCode(this.domicileCode);
+      this.getEmployeeList(this.domicileCode);
+    }
+  }
+  /**
+  * @method erjPartnershipForm
+   * @Description create form builder object
+   */
+
+  erjPartnershipForm() {
+    let today = new Date();
+    this.erjFlight = this.formBuilder.group({
+      name: [''],
+      partnerName: [''],
+      effectiveDate: [today, ''],
+    })
+  }
+
+  /**
+* @method partnerNameFilter
+ * @Description on change of select dropdown get the domicile code from employeelist
+ */
+
+  partnerNameFilter() {
+    this.selectedPartnerName = this.erjFlight.controls['name'].value.name;
+    this.selectedPartnerCode = this.selectedPartnerName.substr(0, 3);
+    if (this.mode == 'Add') {
+      this.filterNamesByCode(this.selectedPartnerCode);
+    }
+  }
+  /**
+   * @method filterNamesByCode
+    * @Description get selected employee details related to domicile code
+    */
+  filterNamesByCode(code) {
+    this.partnershipRequestService.getEmployeeList(this.mode, code).pipe(takeUntil(this.ngUnsubscribe)).subscribe(data => {
+      this.employeeFilteredList = data;
+      this.errorMsg = '';
+    })
+  }
+
+  /**
+  * @method getEmployeeList
+   * @Description get employee details
+   */
+
+  getEmployeeList(code?) {
+    this.partnershipRequestService.getEmployeeList(this.mode, code).pipe(takeUntil(this.ngUnsubscribe)).subscribe(data => {
+      this.employeeList = data;
+      if (this.mode == 'Add') {
+        this.erjFlight.controls['name'].setValue(this.employeeList[0]);
+        this.partnerNameFilter();
+        this.erjFlight.controls['partnerName'].setValue(this.employeeList[0].empNo);
+        this.erjFlight.controls['effectiveDate'].setValue(new Date);
+      } else {
+        this.erjFlight.controls['name'].setValue(
+          this.employeeList.find(element => element.empNo == this.empNo)
+        );
+        this.erjFlight.controls['partnerName'].setValue(this.jobShareEmpNo);
+
+        this.erjFlight.controls['effectiveDate'].setValue((this.erjFlight.controls['effectiveDate'].value != null && this.erjFlight.controls['effectiveDate'].value != '') ? this.dateFormate.adjustForTimezone(this.selectedEffectiveDate) : '');
+
+      }
+    })
+  }
+
+  /**
+   * @method submitForm
+    * @Description call submit function on basis of mode value passed
+    */
+  submitForm() {
+    if (this.mode == 'Add') {
+      this.addpartnershipRequest();
+    } else {
+      this.updatepartnershipRequest();
+    }
+  }
+
+
+  /**
+   * @method addpartnershipRequest
+    * @Description submit form on click of add button
+    */
+  addpartnershipRequest() {
+    this.flightAttendantPartnerShip.id = 0;
+    this.flightAttendantPartnerShip.empNo = this.erjFlight.controls['name'].value.empNo;
+    this.flightAttendantPartnerShip.jobShareCode = 'PS';
+    this.flightAttendantPartnerShip.jobShareEmpNo = this.erjFlight.controls['partnerName'].value;
+    this.flightAttendantPartnerShip.jobShareEffectiveDate = (this.erjFlight.controls['effectiveDate'].value != null && this.erjFlight.controls['effectiveDate'].value != '') ?
+      new Date(this.erjFlight.controls['effectiveDate'].value).toLocaleDateString('en-US').replace(/[^ -~]/g, '') : null;
+    if (this.flightAttendantPartnerShip.empNo == this.flightAttendantPartnerShip.jobShareEmpNo) {
+      this.errorMsg = 'Cannot be the same person';
+      return false;
+    }
+    this.partnershipRequestService.addEmplyeePartnership(this.flightAttendantPartnerShip).pipe(takeUntil(this.ngUnsubscribe)).subscribe(response => {
+      if (response.response == 1) {
+        this.errorMsg = 'A Partnership has been Added';
+        setTimeout(() => {
+          this.closePopUp();
+        }, 1000)
+      }
+    })
+  }
+  /**
+    * @method updatepartnershipRequest
+     * @Description update partner detail on click of edit button
+     */
+  updatepartnershipRequest() {
+    this.flightAttendantPartnerShip.id = this.partnerId;
+    this.flightAttendantPartnerShip.empNo = this.erjFlight.controls['name'].value.empNo;
+    this.flightAttendantPartnerShip.jobShareCode = 'PS';
+    this.flightAttendantPartnerShip.jobShareEmpNo = this.erjFlight.controls.partnerName.value;
+    this.flightAttendantPartnerShip.jobShareEffectiveDate = (this.erjFlight.controls['effectiveDate'].value != null && this.erjFlight.controls['effectiveDate'].value != '') ?
+      new Date(this.erjFlight.controls['effectiveDate'].value).toLocaleDateString('en-US').replace(/[^ -~]/g, '') : null;
+    if (this.flightAttendantPartnerShip.empNo == this.flightAttendantPartnerShip.jobShareEmpNo) {
+      this.errorMsg = 'Cannot be the same person';
+      return false;
+    }
+    this.partnershipRequestService.updateEmplyeePartnership(this.flightAttendantPartnerShip).pipe(takeUntil(this.ngUnsubscribe)).subscribe(response => {
+      if (response.response == 2) {
+        this.errorMsg = 'Duplicate Employee';
+      } else {
+        this.errorMsg = 'A Partnership has been Updated Successfully';
+        setTimeout(() => {
+          this.closePopUp();
+        }, 1000)
+      }
+    })
+  }
+  /**
+    * @method deletePartnershipRequest
+     * @Description delete partner on click of delete button
+     */
+  deletePartnershipRequest() {
+    this.modalservice.modalConfirm('Are you sure you want to delete this partnership request?',
+      this.deletePartnerShip.bind(this), 'medium');
+  }
+
+  /**
+   * @method deletePartnerShip
+    * @Description subscribe deleteEmployeePartnerShip service to delete the request
+    */
+
+  deletePartnerShip() {
+    this.partnershipRequestService.deleteEmployeePartnerShip(this.partnerId).pipe(takeUntil(this.ngUnsubscribe)).subscribe(response => {
+      if (response == 1) {
+        this.errorMsg = 'A Partnership has been Deleted';
+        setTimeout(() => {
+          this.closePopUp();
+        }, 1000)
+      }
+    })
+  }
+  // /**
+  //   * @method closePopUp
+  //    * @Description - notify parent component to close the modal
+  //    */
+  closePopUp() {
+    this.notifyParent.emit(true);
+  }
+
+  /**
+* @method ngOnDestroy
+* @description
+* Method is used to unsubscribe all subscription called when component destroyed.
+*/
+
+  ngOnDestroy(): void {
+    this.ngUnsubscribe.next();
+    this.ngUnsubscribe.complete();
+  }
+
+}
+-------------------------------
+
+    <form [formGroup]="erjFlight" class="ml-2" (ngSubmit)="submitForm()">
+        <div class="modal-body">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="form-group w-70Per-sp">
+                        <label>Name:</label>
+                        <select class="form-control custom-select" formControlName="name"
+                            (change)="partnerNameFilter()">
+                            <option *ngFor="let employee of employeeList" [ngValue]="employee">
+                                <span *ngIf="mode=='Edit' && employee.isRequested==1">*</span>
+                                {{employee.name}}</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <div class="form-group w-70Per-sp">
+                        <label>Partner Name:</label>
+                        <select class="form-control custom-select" formControlName="partnerName"
+                            (change)="this.errorMsg = ''">
+                            <option *ngFor="let filterEmp of employeeFilteredList" [value]="filterEmp.empNo">
+                                <span *ngIf="mode=='Edit' && filterEmp.isRequested==1">*</span>
+                                {{filterEmp.name}}</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <div class="form-group w-70Per-sp">
+                        <label>Effective Date:</label>
+                        <input type="text" class="form-control" formControlName="effectiveDate" bsDatepicker
+                            #dp="bsDatepicker" placement="top left" [outsideClick]="true" onkeypress="return false;"
+                            [bsConfig]="{ dateInputFormat: 'MM/DD/YYYY', showWeekNumbers:false }">
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="modal-footer no-border">
+            <div class="col-md-12 mt-4" *ngIf="mode=='Add'">
+                <button type="submit" class="btn btn-light btn-lg mr-2">
+                    Add
+                </button>
+                <button type="button" class="btn btn-white btn-lg" (click)="closePopUp();">
+                    Close
+                </button>
+            </div>
+            <div class="col-md-12 mt-4" *ngIf="mode=='Edit'">
+                <button type="submit" class="btn btn-light btn-lg mr-2">
+                    Update
+                </button>
+                <button type="button" class="btn btn-white btn-lg mr-2" (click)="deletePartnershipRequest();">
+                    Delete
+                </button>
+                <button type="button" class="btn btn-white btn-lg" (click)="closePopUp();">
+                    Close
+                </button>
+            </div>
+            <div class="col-md-12">
+                <p class="mt-4 required" [innerHTML]="errorMsg"></p>
+            </div>
+
+        </div>
+
+    </form>

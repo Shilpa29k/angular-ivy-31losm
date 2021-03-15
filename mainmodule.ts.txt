@@ -1,0 +1,61 @@
+
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { NgModule } from '@angular/core';
+
+// Core modules
+import { CoreModule } from './core';
+import { BackendModule } from './backend';
+import { SharedModule } from './shared';
+import { LayoutModule } from './layout';
+
+
+//Root component
+import { XjtRouting } from './xjt.routing';
+import { XjtComponent } from './xjt.component';
+
+import { APP_BASE_HREF } from '@angular/common';
+import { TabsModule } from 'ngx-bootstrap/tabs';
+import { LoginComponent } from './login/login.component';
+import { CollapseModule } from 'ngx-bootstrap/collapse';
+
+
+
+/**
+ *@module
+ *@description
+ * XjtModule is the root module, all other modules must be placed here.
+ */
+
+@NgModule({
+  declarations: [
+    XjtComponent,
+    LoginComponent    
+    
+    
+ 
+  ],
+  imports: [
+    BrowserAnimationsModule,
+
+    //root routing
+    XjtRouting,
+
+     // forRoot() avoid create the same instance twice.
+    BackendModule.forRoot(),
+    CoreModule.forRoot(),
+    SharedModule.forRoot(),
+    LayoutModule.forRoot(),
+    TabsModule.forRoot(),
+    CollapseModule.forRoot(),
+
+    //features module
+ 
+    
+  ],
+  
+ 
+  bootstrap: [XjtComponent]
+
+
+})
+export class XjtModule { }

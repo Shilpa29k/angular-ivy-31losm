@@ -1,0 +1,278 @@
+import { Component, OnInit, Input } from '@angular/core';
+import { Subscription } from 'rxjs';
+import { HotelAdminERJService } from '../../shared/services/administration/hotelAdminERJ.service';
+import { FormGroup, FormBuilder, Validators } from '@angular/forms';
+import { MaintenanceAD083ServiceService } from './../../shared';
+import { Router, ActivatedRoute } from '@angular/router';
+import { BsLocaleService, defineLocale } from 'ngx-bootstrap';
+import { enGbLocale } from 'ngx-bootstrap/locale';
+import { HotelRate } from 'src/app/shared/models/administration/hotel-rate.model';
+
+@Component({
+  selector: 'xjt-hotel-rate',
+  templateUrl: './hotel-rate.component.html',
+  styleUrls: ['./hotel-rate.component.css']
+})
+export class HotelRateComponent implements OnInit {
+  public dateValue: Date = new Date();
+  hotelRate: HotelRate;
+
+  hotelAddRateForm: FormGroup;
+  private subscription: Subscription;
+  submitted: boolean = false;
+  appliesTo: boolean = true;
+  displayOn: boolean = true;
+  hotelId: number = 0;
+  rateId: number = 0;
+  Message: string;
+  /**
+   *  @constructor
+   * It injects all the dependencies.
+   */
+  constructor(private route: ActivatedRoute, private localeService: BsLocaleService, private hotelListService: HotelAdminERJService, private formBuilder: FormBuilder, private maintenanceAD083ServiceService: MaintenanceAD083ServiceService, private routes: Router) {
+    enGbLocale.invalidDate = '';
+    defineLocale('custom locale', enGbLocale);
+    this.localeService.use('custom locale');
+  }
+
+
+  ngOnInit() {
+    this.createAddHotelRateForm();
+
+
+    if (this.route.snapshot.queryParamMap.keys.length > 0) {
+      if (this.route.snapshot.queryParamMap.has('HotelId')) {
+        this.hotelId = parseInt(this.route.snapshot.queryParamMap.get('HotelId'));
+      }
+      if (this.route.snapshot.queryParamMap.has('RateId')) {
+        this.rateId = parseInt(this.route.snapshot.queryParamMap.get('RateId'));
+      }
+      // if(this.hotelId!=null && this.rateId!=null)
+      // {
+      // }
+
+    }
+    this.editRate();
+  }
+  /**
+    * @method
+    * @description
+    * It returns all the controls of add hotel rate
+    */
+  get f() {
+    return this.hotelAddRateForm.controls;
+  }
+
+  /**
+  * @method
+  * @description
+  * It returns all the controls of add hotel rate
+  */
+  createAddHotelRateForm() {
+    this.hotelAddRateForm = this.formBuilder.group({
+      rateDescription: ['', Validators.required],
+      rate: ['', [Validators.required, Validators.pattern(/^(\d*\.)?\d+$/)]],
+      crew: [''],
+      business: [''],
+      training: [''],
+      pleasure: [''],
+      displayCrew: [''],
+      displayBusiness: [''],
+      displayTraining: [''],
+      displayPleasure: [''],
+      startDate: [new Date()],
+      endDate: [new Date()],
+      comments: [''],
+    })
+  }
+
+  /**
+  * @method
+  * @description
+  * It returns all the controls of add hotel rate and closes the respective window automatically
+  */
+  closeDocument() {
+    window.close();
+  }
+
+  /**
+  * @method
+  * @description
+  * It returns all the controls of add hotel rate
+  */
+  saveForm() {
+    this.submitted = true;
+    this.checkAppliesTo();
+    this.checkDisplayOn();
+    if (this.hotelAddRateForm.valid && this.appliesTo == true && this.displayOn == true) {
+      if (this.rateId > 0 && this.hotelId > 0) {
+        this.hotelRate = this.hotelAddRateForm.value;
+        this.hotelRate.id = this.rateId;
+        this.hotelRate.hotelId = this.hotelId;
+        this.hotelRate.startDate = new Date(this.adjustForTimezone(this.hotelRate.startDate));
+        this.hotelRate.endDate = new Date(this.adjustForTimezone(this.hotelRate.endDate));
+
+        this.subscription = this.hotelListService.updateHotelRate(this.hotelRate).subscribe(data => {
+
+          if (data == 'You cannot overlap date ranges for Crew rates.') {
+
+            this.Message = data;
+          }
+          else {
+            this.Message = '';
+            this.closeDocument();
+
+          }
+        })
+      } else {
+
+
+        this.hotelRate = this.hotelAddRateForm.value;
+        this.hotelRate.crew = (this.f.crew.value != null && this.f.crew.value != '') ? this.f.crew.value : false;
+        this.hotelRate.business = (this.f.business.value != null && this.f.business.value != '') ? this.f.business.value : false;
+        this.hotelRate.training = (this.f.training.value != null && this.f.training.value != '') ? this.f.training.value : false;
+        this.hotelRate.pleasure = (this.f.pleasure.value != null && this.f.pleasure.value != '') ? this.f.pleasure.value : false;
+        this.hotelRate.displayCrew = (this.f.displayCrew.value != null && this.f.displayCrew.value != '') ? this.f.displayCrew.value : false;
+        this.hotelRate.displayBusiness = (this.f.displayBusiness.value != null && this.f.displayBusiness.value != '') ? this.f.displayBusiness.value : false;
+        this.hotelRate.displayTraining = (this.f.displayTraining.value != null && this.f.displayTraining.value != '') ? this.f.displayTraining.value : false;
+        this.hotelRate.displayPleasure = (this.f.displayPleasure.value != null && this.f.displayPleasure.value != '') ? this.f.displayPleasure.value : false;
+
+        this.hotelRate.id = 0;
+        this.hotelRate.hotelId = this.hotelId;
+        this.hotelRate.startDate = new Date(this.adjustForTimezone(this.hotelRate.startDate));
+        this.hotelRate.endDate = new Date(this.adjustForTimezone(this.hotelRate.endDate));
+        this.subscription = this.hotelListService.addHotelRate(this.hotelRate).subscribe(data => {
+
+          if (data == 'You cannot overlap date ranges for Crew rates.') {
+
+            this.Message = data;
+          }
+          else {
+            this.Message = '';
+            this.closeDocument() ;
+          }
+        })
+      }
+    } else {
+      
+
+      return;
+    }
+  }
+
+  /**
+   * @method checkAppliesTo
+   * @description method to check the form value and apply validation
+   */
+  checkAppliesTo() {
+
+    if (this.submitted && (this.f.crew.value == true || this.f.business.value == true || this.f.training.value == true || this.f.pleasure.value == true)) {
+      this.appliesTo = true;
+
+    } else {
+      this.appliesTo = false;
+    }
+
+  }
+/**
+ * @method  checkDisplayOn()
+ * @description call the method to check the checbox against dsplay on field value for crew members in Add new Rate window
+ */ 
+
+  checkDisplayOn() {
+
+    if (this.f.displayCrew.value == true && !this.f.crew.value == true) {
+
+      this.displayOn = false;
+    } else if (this.f.displayBusiness.value == true && !this.f.business.value == true) {
+
+
+      this.displayOn = false;
+    } else if (this.f.displayTraining.value == true && !this.f.training.value == true) {
+
+
+      this.displayOn = false;
+    }
+    else if (this.f.displayPleasure.value == true && !this.f.pleasure.value == true) {
+
+
+      this.displayOn = false;
+    } else 
+      this.displayOn = true;
+
+    }
+  }
+ 
+/**
+ * @method  check()
+ * @description call the method to check the checbox against applies to and dsplay on field valuer crew members in Add new Rate window
+ */ 
+  check() {
+
+    this.checkAppliesTo();
+    this.checkDisplayOn();
+  }
+ 
+/**
+ * @method editRate()
+ * @description Get whole of the Rate related data based in RateId and Hotel Id
+ */
+  editRate() {
+
+    this.subscription = this.hotelListService.getHotelRate(this.rateId, this.hotelId).subscribe(result => {
+
+      if (result != null) {
+        result.startDate = result.startDate != null && result.startDate != '' ? this.adjustForTimezone(result.startDate) : null;
+        result.endDate = result.endDate != null && result.endDate != '' ? this.adjustForTimezone(result.endDate) : null;
+        this.hotelAddRateForm.patchValue(result);
+      }
+
+    })
+  }
+
+  /**
+ * @method editRate()
+ * @description Get whole of the Rate related data based in RateId and Hotel Id
+ */
+deleteRate() {
+  if (confirm("Are you sure you want to delete this rate?")) {
+  this.subscription = this.hotelListService.deleteHotelRate(this.rateId, this.hotelId).subscribe(result => {
+
+    if (result != null)
+     {
+      this.closeDocument() ;
+    }
+
+  })
+}
+}
+
+  /**
+   * @method adjustForTimezone
+   * @description
+   * adjust timzone for dates
+   */
+  adjustForTimezone(date): Date {
+    let formattedDate = new Date(date);
+    var timeOffsetInMS: number = formattedDate.getTimezoneOffset() * 60000;
+    formattedDate.setTime(formattedDate.getTime() - timeOffsetInMS);
+    return formattedDate;
+  }
+  /**
+* @method
+* @description
+* Method is used to unsubscribe all subscription, called when component destroyed.
+*/
+  ngOnDestroy(): void {
+    this.subscription.unsubscribe();
+  }
+
+
+  checkNumber(control: any) {
+    let controlValue = control.value;
+    if (isNaN(controlValue)) {
+      control.value = controlValue.replace(/[^\d]/g, '');
+    }
+  }
+
+}

@@ -1,0 +1,355 @@
+<div class="container border">
+  <div class="row">
+    <div class="col-md-12 header-div">
+      <label class="lbl-style lbl-rnd">TEST DETAILS</label>
+    </div>
+  </div>
+  <div class="row mt-2">
+    <div class="col-md-12">
+      <a class="a-style" [routerLink]="['/safety/pool/manage',this.editTestDetailsFormControls.quarterId.value,'']">Back</a>
+    </div>
+  </div>
+
+  <form [formGroup]="editTestDetailsForm">
+
+    <div class="row ml-2">
+
+      <div class="col-md-3 form-group pr-0 text-right">
+        <label class="font-weight-bold">Employee #:</label>
+      </div>
+      <div class="col-md-6">
+        {{this.editTestDetailsFormControls.empNo.value}}
+      </div>
+    </div>
+    <div class="row ml-2">
+
+      <div class="col-md-3 form-group pr-0 text-right">
+        <label class="font-weight-bold">Full Name:</label>
+      </div>
+      <div class="col-md-6">
+        {{this.editTestDetailsFormControls.nameFull.value}}
+      </div>
+
+    </div>
+
+    <div class="row ml-2">
+
+      <div class="col-md-3 form-group pr-0 text-right">
+        <label class="font-weight-bold">SSN:</label>
+      </div>
+      <div class="col-md-6">
+        {{this.editTestDetailsFormControls.ssn.value}}
+      </div>
+
+    </div>
+
+    <div class="row ml-2">
+
+      <div class="col-md-3 form-group pr-0 text-right">
+        <label class="font-weight-bold">Job Title:</label>
+      </div>
+      <div class="col-md-6">
+        {{this.editTestDetailsFormControls.jobTitle.value}}
+      </div>
+
+    </div>
+
+    <div class="row ml-2">
+
+      <div class="col-md-3 form-group pr-0 text-right">
+        <label class="font-weight-bold">Work Location:</label>
+      </div>
+      <div class="col-md-6">
+        {{this.editTestDetailsFormControls.workLocation.value}}
+      </div>
+
+    </div>
+
+    <div class="row ml-2">
+
+      <div class="col-md-3 form-group pr-0 text-right">
+        <label class="font-weight-bold">Require Alcohol Test:</label>
+      </div>
+      <div class="col-md-6">
+        {{this.editTestDetailsFormControls.requireAlcoholTest.value==true?'Yes':'No'}}
+      </div>
+
+    </div>
+
+    <div class="row ml-2">
+
+      <div class="col-md-3 form-group pr-0 text-right">
+        <label class="font-weight-bold">Scheduled Date:</label>
+      </div>
+      <div class="col-md-2">
+        <input type="text" bsDatepicker #dp="bsDatepicker" formControlName="scheduledDate" class="form-control" [bsConfig]="bsConfig"
+          onkeypress="return false;" />
+      </div>
+
+    </div>
+
+    <div class="row ml-2 mt-2">
+
+      <div class="col-md-3 form-group pr-0 text-right">
+        <label class="font-weight-bold">Drug Test Date:</label>
+      </div>
+      <div class="col-md-2">
+        <input type="text" #dp="bsDatepicker" bsDatepicker class="form-control" formControlName="drugTestDate" [bsConfig]="bsConfig"
+          onkeypress="return false;" />
+      </div>
+
+    </div>
+
+    <div class="row ml-2 mt-2">
+
+      <div class="col-md-3 form-group pr-0 text-right">
+        <label class="font-weight-bold">Drug Test Result:</label>
+      </div>
+      <div class="col-md-2">
+        <input type="text" #dp="bsDatepicker" class="form-control" bsDatepicker formControlName="drugTestResult" [bsConfig]="bsConfig"
+          onkeypress="return false;" />
+      </div>
+
+    </div>
+
+    <div class="row ml-2 mt-2">
+
+      <div class="col-md-3 form-group pr-0 text-right">
+        <label class="font-weight-bold">Drug Specimen:</label>
+      </div>
+      <div class="col-md-3">
+        <input type="text" class="form-control" formControlName="drugSpecimen" maxlength="50" />
+      </div>
+
+    </div>
+
+    <div class="row ml-2 mt-2">
+
+      <div class="col-md-3 form-group pr-0 text-right">
+        <label class="font-weight-bold">Drug Test Positive:</label>
+      </div>
+      <div class="col-md-3">
+        <input type="checkbox" formControlName="drugTestPositive" />
+      </div>
+
+    </div>
+
+    <div class="row ml-2 mt-2">
+
+      <div class="col-md-3 form-group pr-0 text-right">
+        <label class="font-weight-bold">Alcohol Test Date:</label>
+      </div>
+      <div class="col-md-2">
+        <input type="text" #dp="bsDatepicker" class="form-control" bsDatepicker formControlName="alcoholTestDate" [bsConfig]="bsConfig"
+          onkeypress="return false;" />
+      </div>
+
+    </div>
+
+    <div class="row ml-2 mt-2">
+
+      <div class="col-md-3 form-group pr-0 text-right">
+        <label class="font-weight-bold">Alcohol Test Result:</label>
+      </div>
+      <div class="col-md-2">
+        <input type="text" #dp="bsDatepicker" class="form-control" bsDatepicker formControlName="alcoholTestResult" [bsConfig]="bsConfig"
+          onkeypress="return false;" />
+      </div>
+
+    </div>
+
+    <div class="row ml-2 mt-2">
+
+      <div class="col-md-3 form-group pr-0 text-right">
+        <label class="font-weight-bold">Alcohol Test Positive:</label>
+      </div>
+      <div class="col-md-2">
+        <input type="checkbox" formControlName="alcoholTestPositive" />
+      </div>
+
+    </div>
+
+    <div class="row ml-2 mt-2">
+
+      <div class="col-md-3 form-group pr-0 text-right">
+        <label class="font-weight-bold">Comment:</label>
+      </div>
+      <div class="col-md-3">
+        <input type="text" class="form-control" formControlName="comment" maxlength="50" />
+      </div>
+
+    </div>
+
+    <div class="row ml-2 mt-2">
+
+      <div class="col-md-3 form-group pr-0 text-right">
+        <label class="font-weight-bold">Complete:</label>
+      </div>
+      <div class="col-md-3">
+        <input type="checkbox" formControlName="complete" />
+      </div>
+
+    </div>
+
+    <div class="row ml-2 ">
+
+
+      <div class="col-md-3 form-group pr-0 text-right">
+
+      </div>
+
+      <div class="col-md-3 mb-2">
+        <input type="button" class="btn-light btn-sm" value="Save" (click)="editPool()" />
+      </div>
+    </div>
+  </form>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+import { Component, OnInit } from '@angular/core';
+import { FormBuilder, FormGroup } from '@angular/forms';
+import { RandomTestingService } from '../../shared';
+import { ActivatedRoute, Router } from '@angular/router';
+import { CompileShallowModuleMetadata } from '@angular/compiler';
+import { DatePipe } from '@angular/common';
+import { BsDatepickerConfig } from 'ngx-bootstrap/datepicker';
+import { enGbLocale } from 'ngx-bootstrap/locale';
+import { BsLocaleService, defineLocale } from 'ngx-bootstrap';
+
+@Component({
+  selector: 'xjt-edit-pool',
+  templateUrl: './editPool.component.html',
+  styleUrls: ['./editPool.component.css']
+})
+/**
+ *@class
+ *@description
+ * It handles edit Random pool functionality of safety feature.
+ */
+export class EditPoolComponent implements OnInit {
+  editTestDetailsForm: FormGroup;
+  randomId: string;
+  quarterId: string;
+  bsConfig = { dateInputFormat: 'MM/DD/YYYY', showWeekNumbers: false };
+  /**
+   * @method
+   * @description
+   * returns all controls of editTestDetailForm 
+   */
+  get editTestDetailsFormControls() { return this.editTestDetailsForm.controls; }
+  /**
+   * @constructor
+   * @description
+   * inject all dependencies
+   * @param formBuilder object of FormBuilder
+   * @param randomTestingservice object of RandomTestingService
+   * @param route object of ActivatedRoute to get route parameters 
+   * @param router object of Router used for navigation
+   * @param datePipe object of DatePipe for transforming date format
+   */
+  constructor(private localeService: BsLocaleService, private formBuilder: FormBuilder, private randomTestingservice: RandomTestingService, private route: ActivatedRoute, private router: Router, private datePipe: DatePipe, private _bsDatepickerConfig: BsDatepickerConfig) {
+    enGbLocale.invalidDate = "";
+    defineLocale('custom locale', enGbLocale);
+    this.localeService.use('custom locale');
+    this._bsDatepickerConfig.dateInputFormat = 'MM/dd/yyyy';
+  }
+  /**
+   * @method
+   * for component initialization
+   */
+  ngOnInit() {
+    this.randomId = this.route.snapshot.params.randomId;
+    this.createForm();
+    this.randomTestingservice.getRandomPool(this.randomId).subscribe(
+      result => {
+        this.quarterId = result.quarterId;
+        result.scheduledDate = result.scheduledDate != null ? this.adjustForTimezone(result.scheduledDate) : '';
+        result.alcoholTestDate = result.alcoholTestDate != null ? this.adjustForTimezone(result.alcoholTestDate) : '';
+        result.drugTestDate = result.drugTestDate != null ? this.adjustForTimezone(result.drugTestDate) : '';
+        result.alcoholTestResult = result.alcoholTestResult != null ? this.adjustForTimezone(result.alcoholTestResult) : '';
+        result.drugTestResult = result.drugTestResult != null ? this.adjustForTimezone(result.drugTestResult) : '';
+        this.editTestDetailsForm.patchValue(result);
+      });
+  }
+  /**
+     * @method adjustForTimezone
+     * @description
+     * adjust timzone for dates
+     */
+  adjustForTimezone(date): Date {
+    let formattedDate = new Date(date);
+    var timeOffsetInMS: number = formattedDate.getTimezoneOffset() * 60000;
+    formattedDate.setTime(formattedDate.getTime() - timeOffsetInMS);
+    return formattedDate;
+  }
+  /**
+   * @method
+   * @description 
+   * This method is used for creating formgroup object
+   */
+  createForm() {
+    this.editTestDetailsForm = this.formBuilder.group({
+      randomId: [''],
+      quarterId: [''],
+      empNo: [''],
+      nameFull: [''],
+      ssn: [''],
+      jobTitle: [''],
+      workLocation: [''],
+      requireAlcoholTest: [''],
+      scheduledDate: [''],
+      drugTestDate: [''],
+      drugTestResult: [''],
+      alcoholTestDate: [''],
+      alcoholTestResult: [''],
+      drugSpecimen: [''],
+      drugTestPositive: [''],
+      alcoholTestPositive: [''],
+      comment: [''],
+      complete: ['']
+    });
+  }
+  /**
+   * @method
+   * @description
+   * Method is used for save the updated random pool test details, sends the object to servce which calls api for saving.
+   */
+  editPool() { 
+    this.editTestDetailsForm.value.scheduledDate =(this.editTestDetailsForm.controls["scheduledDate"].value != null && this.editTestDetailsForm.controls["scheduledDate"].value != '' && this.editTestDetailsForm.controls["scheduledDate"].value != 'Invalid Date') ?new Date(this.editTestDetailsForm.controls["scheduledDate"].value).toLocaleDateString('en-US').replace(/[^ -~]/g, '') : null;
+    this.editTestDetailsForm.value.drugTestDate = (this.editTestDetailsForm.controls["drugTestDate"].value != null && this.editTestDetailsForm.controls["drugTestDate"].value != '' && this.editTestDetailsForm.controls["drugTestDate"].value != 'Invalid Date') ? new Date(this.editTestDetailsForm.controls["drugTestDate"].value).toLocaleDateString('en-US').replace(/[^ -~]/g, '') : null;
+    this.editTestDetailsForm.value.drugTestResult = (this.editTestDetailsForm.controls["drugTestResult"].value != null && this.editTestDetailsForm.controls["drugTestResult"].value != '' && this.editTestDetailsForm.controls["drugTestResult"].value != 'Invalid Date') ? new Date(this.editTestDetailsForm.controls["drugTestResult"].value).toLocaleDateString('en-US').replace(/[^ -~]/g, '') : null;
+    this.editTestDetailsForm.value.alcoholTestDate = (this.editTestDetailsForm.controls["alcoholTestDate"].value != null && this.editTestDetailsForm.controls["alcoholTestDate"].value != '' && this.editTestDetailsForm.controls["alcoholTestDate"].value != 'Invalid Date') ? new Date(this.editTestDetailsForm.controls["alcoholTestDate"].value).toLocaleDateString('en-US').replace(/[^ -~]/g, '') : null;
+    this.editTestDetailsForm.value.alcoholTestResult = (this.editTestDetailsForm.controls["alcoholTestResult"].value != null && this.editTestDetailsForm.controls["alcoholTestResult"].value != '' && this.editTestDetailsForm.controls["alcoholTestResult"].value != 'Invalid Date') ? new Date(this.editTestDetailsForm.controls["alcoholTestResult"].value).toLocaleDateString('en-US').replace(/[^ -~]/g, '') : null;
+
+
+    this.randomTestingservice.editRandomPool(this.editTestDetailsForm.value).subscribe(
+      result => {
+        if (result != undefined) {
+          this.router.navigate(['/safety/pool/manage', this.quarterId, ''])
+        }
+      });
+  }
+}

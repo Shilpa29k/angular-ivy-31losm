@@ -1,0 +1,374 @@
+import { NotificationService } from 'src/app/shared/services/toaster/toastr-notification.service';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { map, catchError } from 'rxjs/operators';
+import { empty as emptyObservable, Observable } from 'rxjs';
+import { Injectable } from '@angular/core';
+import { EndPoint } from '../end-point';
+import { SpinnerService } from '../spinner';
+
+export class UserDetail{
+    id: string;
+    name: string;
+    email: string;
+    role: string
+}
+
+@Injectable({
+    providedIn:'root'
+})
+export abstract class BaseService {
+    
+    private Auth_Token: string = 'auth_token';
+    private Current_User: string = 'Current_User'
+    private Expires_In: string = 'expires';
+    private User_Name: string = 'user_name';
+    public endPoints = EndPoint;
+    protected supressError: boolean = false;
+
+    get AuthToken(): string { return localStorage.getItem(this.Auth_Token) };
+    set AuthToken(token: string) { localStorage.setItem(this.Auth_Token, token) };
+
+    get tokenExpiresAt(): string {return localStorage.getItem(this.Expires_In)};
+    set tokenExpiresAt(value: string){ localStorage.setItem(this.Expires_In, value)};
+
+    get UserName(): string { return localStorage.getItem(this.User_Name)};
+    set UserName(value: string) { localStorage.setItem(this.User_Name, value)};
+
+    get CurrentUser() { return JSON.parse(localStorage.getItem(this.Current_User)) };
+    set CurrentUser(user: UserDetail) { localStorage.setItem(this.Current_User, JSON.stringify(user)) };
+
+    private logoutTimerId = null;
+
+    constructor(protected http: HttpClient, protected notification: NotificationService,
+        protected spinnerService: SpinnerService) { 
+        }
+
+    get headers(): HttpHeaders {
+        let headers = new HttpHeaders();
+        headers = headers.set('Content-Type', 'application/json');
+        headers = headers.set('Accept', 'application/json');
+        headers = headers.set('Autorization', `Bearer ${this.AuthToken}`);
+        return headers;
+    }
+
+    get formHeaders(): HttpHeaders {
+        let headers = new HttpHeaders();
+        headers = headers.set('Content-Type', 'application/x-www-form-urlencoded');
+        headers = headers.set('Accept', 'application/json');
+        return headers;
+    }
+
+    get<T>(url: string, customHeaders: HttpHeaders = null): Observable<T> {
+        let options  = { headers: (customHeaders ? customHeaders : this.headers)};
+        return this.http.get<T>(url, options)
+            .pipe(map((response: T) => { return response }),
+            catchError((error: Response) => this.handleError(error, this.supressError)));
+    }
+    post<T>(url: string, model?: any, customHeaders: HttpHeaders = null): Observable<T> {
+        let options  = { headers: (customHeaders ? customHeaders : this.headers)};
+        let body = {};
+        return this.http.post<T>(url, body, options)
+            .pipe(map((response: T) => { return response }),
+                catchError((error: Response) => this.handleError(error, this.supressError)));
+    }
+
+    patch<T>(url: string, model?: any, customHeaders: HttpHeaders = null): Observable<T> {
+        let options  = { headers: (customHeaders ? customHeaders : this.headers)};
+        let body = {};
+        if (model) {
+            body = JSON.stringify(model);
+        }
+        return this.http.patch<T>(url, body, options)
+            .pipe(map((response: T) => { return response }),
+                catchError((error: Response) => this.handleError(error, this.supressError)));
+    }
+
+    put<T>(url: string, model?: any, customHeaders: HttpHeaders = null): Observable<T> {
+        let options  = { headers: (customHeaders ? customHeaders : this.headers)};
+        let body = {};
+        if (model) {
+            body = JSON.stringify(model);
+        }
+        return this.http.put<T>(url, body, options)
+            .pipe(map((response: T) => { return response }),
+                catchError((error: Response) => this.handleError(error, this.supressError)));
+    }
+
+    delete<T>(url: string, customHeaders: HttpHeaders = null) {
+        let options  = { headers: (customHeaders ? customHeaders : this.headers)};
+        return this.http.delete<T>(url, options)
+            .pipe(map((response: T) => { return response }),
+                catchError((error: Response) => this.handleError(error, this.supressError)));
+    }
+
+    protected handleError(error: Response, supressError: boolean = false): Observable<any>{
+        let errMsg = this.checkForInnerMessage(error);
+        console.log(error.url);
+        console.log(errMsg);
+        this.spinnerService.stop();
+        if(error.status == 401){
+            //do something
+            return;
+        }
+        let body;
+        if(error.statusText){
+            body = error.json;
+        }
+
+        if(!supressError){
+            // show notification
+        }
+
+        return emptyObservable();
+    }
+
+
+    checkForInnerMessage(error) {
+        let errMsg =  (error.message)? error.message : 
+                        error.status ? `${error.status} - ${error.statusText}`: 'server error';
+        if(error._body){
+            let body = JSON.parse(error._body)
+            if(body.InnerError && body.SimpleMessage){
+                errMsg = body.DetailedMessage? body.DetailedMessage : body.SimpleMessage;
+            }
+            if(body.code != null){
+                errMsg += `(${body.code})`;
+            }
+        }
+        return errMsg;
+    }
+
+    refreshToken(){
+        //implementation needed
+    }
+
+    clearAuthToken(){
+        localStorage.removeItem(this.Auth_Token);
+        localStorage.removeItem(this.Current_User);
+    }
+
+    public startLogioutInterval(){
+        if(!this.logoutTimerId){
+            this.logoutTimerId = setInterval(()=> { this.checkTimeOut()}, 60000)
+        }
+    }
+
+    private checkTimeOut(){
+        let logoutAt = this.checkToClearLogoutInterval();
+
+        //let logoutAt = this.tokenExpiresAt;
+        // to do:: check time difference and call refresh token;
+        //refreshToken
+       
+    }
+
+    private checkToClearLogoutInterval() {
+        let logoutAt = this.tokenExpiresAt;
+        if (logoutAt === null) {
+            this.stopLogoutInterval();
+        }
+        return logoutAt;
+    }
+
+    public stopLogoutInterval(): void {
+        if (this.logoutTimerId) {
+            clearInterval(this.logoutTimerId);
+            this.logoutTimerId = null;
+        }
+    }
+
+    private refreshLogin() {
+        if (this.tokenExpiresAt !== null) {
+            //this.callRefreshToken();
+        }
+    }
+
+}
+
+
+--------------------------------------------------------------------------------
+import { Injectable } from '@angular/core';
+import {
+  HttpClient,
+  HttpHeaders,
+  HttpParams,
+} from '@angular/common/http';
+
+import { Observable } from 'rxjs';
+import { catchError, map } from 'rxjs/operators';
+
+import { SpinnerService } from "../spinner";
+import { BaseService } from './base.service';
+import { NotificationService } from 'src/app/shared/services/toaster/toastr-notification.service';
+
+const empty_endpoint = 'Endpoint is empty/null, please set the endpoint first.';
+export const methods = {
+  GET: 'GET',
+  POST: 'POST',
+  PUT: 'PUT',
+  DELETE: 'DELETE',
+  LOCAL: 'LOCAL',
+};
+
+/**
+ * @class
+ * @abstract
+ * @description
+ * Abstract data class is the lower level between the components and API calls.
+ * All API calls must be invoked through it.
+ *
+ */
+@Injectable()
+export class DataService extends BaseService {
+  private _url: string;
+  constructor(http: HttpClient, spinnerService: SpinnerService, notificationService: NotificationService) {
+    super(http, notificationService, spinnerService);
+    this._url = '';
+
+  }
+  /**
+     * @param  {string} url
+     * @param  {string[]} values
+     * this function provides a javascript implementation of C# string.format function
+     */
+  buildUrl(url: string, values: string[]): string {
+
+    let i = values.length;
+    while (i--) {
+      url = url.replace(new RegExp('\\{' + i + '\\}', 'gm'), values[i]);
+    }
+    return url;
+  }
+  /**
+     * @description Make a request given the params
+     * @param endPoint
+     * @param method
+     * @param body
+     * @returns {Observable<T>}
+     */
+  request(endPoint: string, method?: string, body?: any, httpParams?: HttpParams) {
+    let rOptions: any = {};
+    let count: number = 0;
+
+    if (body) {
+      rOptions.body = JSON.stringify(body);
+    }
+
+    // set GET as default method.
+    method = !!method ? method : methods.GET;
+    if (method !== methods.LOCAL) {
+      rOptions.headers = this.buildHeader(body);
+    }
+
+    if (!!httpParams && httpParams.keys().length > 0) {
+      rOptions.params = httpParams;
+    }
+
+    rOptions.observe = 'response';
+    rOptions.responseType = 'text';
+    this.spinnerService.start();
+
+    return this.http.request(method, endPoint, rOptions)
+      .pipe(map(this.extractData), map(data => { this.spinnerService.stop(); return data; }));
+  }
+  /**
+   * Make a request if form data needs to send
+   * @param endPoint 
+   * @param formData 
+   */
+  requestFile(endPoint: string, formData: FormData) {
+    let rOptions: any = {};
+    rOptions.observe = 'response';
+    rOptions.responseType = 'text';
+    this.spinnerService.start();
+    return this.http.post(endPoint, formData, rOptions)
+      .pipe(map(this.extractData),
+        map(data => {
+          this.spinnerService.stop();
+          return data;
+        }),
+        catchError((error: Response) => this.handleError(error, this.supressError)))
+  }
+
+  /**
+   * @method
+   * @description
+   * Make a request if file needs to be downloaded because response type is blob
+   * @param endPoint 
+   * end point of request
+   * @param httpParams 
+   * parameters needs to be send with API request
+   */
+  downloadFile(endPoint: string, httpParams: HttpParams): any {
+    let rOptions: any = {};
+    rOptions.responseType = 'blob';
+    if (!!httpParams && httpParams.keys().length > 0) {
+      rOptions.params = httpParams;
+    }
+    return this.http.get(endPoint, rOptions)
+      .pipe(map(res => {
+        return res;
+      }),
+        catchError(error => this.handleError)
+      )
+  }
+
+
+  /**
+   * @description Build a specific header with options, suck as token.
+   * @returns {RequestOptions}
+   */
+  buildHeader(body?: any): HttpHeaders {
+    let headers = new HttpHeaders();
+
+    //if (this._config && this._config.token) {
+    //  headers = headers.set('X-API-Token', this._config.token);
+    //}
+
+    headers = headers.set('Content-Type', 'application/json');
+
+    /** send trace id in case of payment success/failure call */
+    if (!!body && !!body.traceId) {
+      headers = headers.set('X-TraceId', body.traceId);
+    }
+    headers = headers.set('timeout', '30000');
+    return headers;
+  }
+
+  /**
+   * @description Extract the json response into a Object .
+   * @param res
+   * @returns {any}
+   */
+  extractData(response: any): any {
+    /** check if response is json or not */
+    try {
+      JSON.parse(response.body);
+    } catch (e) {
+      /** if response is not json then return it  */
+      return response.body;
+    }
+    if (response.status === 200 && (!!response.body && response.body.length === 0)) {
+      return response;
+    }
+    let headers: HttpHeaders = response.headers || undefined;
+    if (headers.get('x-api-token')) {
+
+    }
+    let body = JSON.parse(response.body);
+    // ensure to get the correct root data from JSON response.
+    if (body instanceof Array) {
+      if (body.length === 1) {
+        body = body[0];
+      }
+    }
+    if (body.Errors != null && body.Errors.length > 0) {
+      body.Errors.forEach(e => {
+        if (e.message !== 'Exception when calculate check in options.') {
+          throw (body);
+        }
+      });
+    }
+    return body;
+  }
+}

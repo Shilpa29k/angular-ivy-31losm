@@ -1,0 +1,71 @@
+
+import { environment } from '../../environments/environment';
+
+/**
+ * @const EndPoint
+ * @description
+ * All EndPoints must be place over here, even the static ones.
+ *
+ */
+export class EndPoint {
+
+    /**
+     * Initial setup.
+     * 
+     */
+    //readonly SAFETYAPIURLs = environment.api_path +'/v1/quarter' ;
+    static API_ROOT = environment.api_path + '/v1/';
+    static SAFETYAPIURL = environment.api_path + '/v1/quarter';
+    static MAINTENANCEAPIURL = environment.api_path + '/v1/Maintenance/';
+    static UNITEDOPERATIONSAPIURL = environment.api_path + '/api/GenDec/';
+
+    static ASAUSERSSAPIURL = environment.api_path + '/v1/asauser';
+    static FAALETTERAPIURL = environment.api_path + '/v1/faaletter';
+    static FERRYFLIGHTAPIURL = environment.api_path + '/v1/ferryflightpermit';
+    static NOFLYAPIURL = environment.api_path + '/v1/nofly';
+
+    static DIRECTORMEMOAPIURL = environment.api_path + '/v1/directormemo';
+
+    static PINPOINTURL = environment.api_path + '/v1/PinPointAlert/';
+    static FACERTIFICATEAPIURL = environment.api_path + '/api/FACertificate';
+    static MEDICALCERTIFICATEAPIURL = environment.api_path + '/api/medicalCertificate';
+
+
+    static FERRYFLIGHTURL = environment.api_path + '/v1/ferryflightpermit';
+    static MANUALANDREVISIONURL = environment.api_path + '/v1/ManualAndRevisions/';
+    static FOER = environment.api_path + '/v1/Foer/';
+    static HOTELADMINERJ = environment.api_path + '/v1/HotelAdminERJ/';
+    static STANDINGBIDLISTERJ = environment.api_path + '/v1/XJTCrew/';
+    static PILOTCERTIFICATEAPIURL = environment.api_path + '/v1/PilotCertificate/';
+    static PARTNERSHIPAPIURL = environment.api_path + '/v1/PartnerShip/';
+    static PAXNAMELIST: string = environment.api_path + '/v1/PaxNameList/';
+    static STATIONPROFILE: string = environment.api_path + '/v1/StationProfile/';
+    static AOGTracker: string = environment.api_path + '/v1/AOGTracker/';
+
+    static SSIMCREWTRACSYNC = environment.api_path + '/v1/';
+
+    static FDRUPLOAD = environment.api_path + '/v1/FDRUpload/';
+
+
+    static EMAIL = environment.api_path + '/v1/';
+
+    static KCM: string = environment.api_path + '/v1/KCM';
+    static CASS: string = environment.api_path + '/v1/CASS';
+    static RDO: string = environment.api_path + '/v1/XJTCrewRDO/';
+    static PilotMedCertificate: string = environment.api_path + '/api/medicalCertificate'
+    static RDOEmail: string = environment.api_path + '/v1/RDOSendEmail';
+    static M28FORM: string = environment.api_path + '/v1/XJTCAEM28/'
+    static XJTCAEM31: string = environment.api_path + '/v1/XJTCAEM31/';
+    static XJTCAEM31ChapterSection: string = environment.api_path + '/v1/';
+    static AttentionItems: string = environment.api_path + '/v1/MyItems/';
+    static MOVINGDAY = environment.api_path + '/v1/movingday/';
+    static DISCREPANTPAPERWORKSUBMIT = environment.api_path + '/v1/';
+    static VOLJRMANLIST: string = environment.api_path + '/v1/voljrmanlist/';
+    static ONCALL: string = environment.api_path + '/v1/OnCall';
+    static ATTENTIONITEMSURL: string = environment.api_path;
+    static APPLICANTDATA = environment.api_path + '/v1/applicantsdata/';
+    static ODILIST = environment.api_path + '/v1/UnitedODI/';
+    static PUBCRITIQUE = environment.api_path + '/v1/MaintenanceScreens/';
+    static ADMINSCHOLARSHIP = environment.api_path + '/v1/';
+    static SENIORITYLIST = environment.api_path + '/GetSeniorityList/';
+}

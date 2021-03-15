@@ -1,0 +1,144 @@
+import { Component, OnInit } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { KcmCssService } from './../../../shared/services/travel/crew-member/kcm-css.service';
+import { KcmModel } from './../../../shared/models/travel/kcm-model';
+import { Binary } from '@angular/compiler';
+import { Router, ActivatedRoute } from '@angular/router';
+import { ɵBROWSER_SANITIZATION_PROVIDERS, DomSanitizer } from '@angular/platform-browser'
+import { Subscription } from 'rxjs/internal/Subscription';
+import { HeaderTitleService } from './../../../shared/services/header-title.service';
+
+@Component({
+  selector: 'app-kcm-inquiry',
+  templateUrl: './kcm-inquiry.component.html',
+  styleUrls: ['./kcm-inquiry.component.css'],
+
+
+})
+export class KcmInquiryComponent implements OnInit {
+  kcmNumber: string;
+  kcminquiryForm: FormGroup;
+  submitted: boolean = false;
+  kcmModel = {} as KcmModel;
+  recordEmpty: boolean = false;
+  recordAvailable: boolean = false;
+  kcmApproval: string = '';
+  kcmUserPicture: Binary;
+  showRecordOnFile: boolean = false;
+  url: string = '';
+  imageData: any;
+  sanitizedImageData: any;
+  imageAvailable: boolean = false;
+  footerFlag: boolean = true;
+  isRequired: boolean = false;
+  isNumber: boolean = false;
+  isLessThanSeven: boolean = false;
+  private subscriptionKCMModule: Subscription = new Subscription();
+  constructor(private headerTitleService: HeaderTitleService,
+    private sanitizer: DomSanitizer, private activatedRoute: ActivatedRoute,
+    private routes: Router, private formBuilder: FormBuilder,
+    private kcmCssService: KcmCssService) {
+      this.headerTitleService.setTitle("KCM Verification");
+     }
+
+  /** On initialization of this module */
+  ngOnInit() {
+    this.submitted = false;
+    this.createForm();
+  }
+
+  /**
+   * return the kcm iquiry form controls
+   */
+  get kcmInquiryControl() { return this.kcminquiryForm.controls; }
+
+  /**
+   * Define the form defination and validation(in case, any)
+   */
+  createForm() {
+    this.kcminquiryForm = this.formBuilder.group({
+      contact: ['', Validators.compose([Validators.required, Validators.minLength(7)])]
+    });
+  }
+
+  /**
+   * Open the Pop to find the Employee Code
+   * @param id 
+   */
+  findEmployeeWindow(id) {
+    this.routes.navigate([]).then(result => { window.open("unitedoperations/pinpointAlert/findemployee", "_pinPointView", "scrollbars=yes,resizable=yes,width=900,height=1000"); });
+  }
+
+  /**
+   * Get the data corresponding to the KCM number and Display
+   */
+  getEmployeeData(em) {
+    debugger;
+    this.submitted = true;
+    this.setValidationError();
+    debugger;
+    this.kcmNumber = (<HTMLInputElement>document.getElementById('contact')).value;
+    if (this.kcmNumber != "" && this.kcmNumber != undefined && this.kcminquiryForm.valid && !this.isNumber) {
+      this.subscriptionKCMModule = this.kcmCssService.getKcmNumberDetails(this.kcmNumber).subscribe(result => {
+        this.kcmModel = result.response;
+        if (this.kcmModel.empNo != null && this.kcmModel.kcmEnabled != null) {
+          this.recordAvailable = true;
+          this.recordEmpty = false;
+
+          this.kcmModel.picture = 'data:image/jpeg;base64,' + result.response.picture;
+          if (result.response.picture != '') {
+            this.imageAvailable = true;
+          } else {
+            this.imageAvailable = false;
+          }
+          this.kcmModel.picture = this.sanitizer.bypassSecurityTrustUrl(this.kcmModel.picture);
+          if (this.kcmModel.kcmEnabled) {
+            this.kcmApproval = 'Approved';
+          } else {
+            this.kcmApproval = 'Denied';
+          }
+        } else {
+          this.recordAvailable = false
+          this.showRecordOnFile = true;
+        }
+      });
+    }
+
+  }
+  /**
+   * OnDestroy Lifecycle Function - release the subscription
+   */
+  ngOnDestroy(): void {
+    this.headerTitleService.setTitle('');
+    this.subscriptionKCMModule.unsubscribe();
+  }
+  setValidationError() {
+    debugger;
+    let value = (<HTMLInputElement>document.getElementById('contact')).value;
+    if (value == '') {
+      this.isRequired = true;
+      this.isNumber = false;
+      this.showRecordOnFile = false;
+      this.isLessThanSeven = false;
+      return;
+    }
+    else if (isNaN(+value)) {
+      this.isNumber = true;
+      this.isRequired = false;
+      this.showRecordOnFile = false;
+      this.isLessThanSeven = false;
+    }
+    else if (value != '' && value.length != 7) {
+      this.isNumber = false;
+      this.isRequired = false;
+      this.showRecordOnFile = false;
+      this.isLessThanSeven = true;
+    }
+    else {
+      this.isRequired = false;
+      this.isNumber = false
+      this.showRecordOnFile = false;
+      this.isLessThanSeven = false;
+    }
+  }
+}

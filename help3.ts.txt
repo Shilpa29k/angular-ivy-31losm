@@ -1,0 +1,70 @@
+import { NgModule, ModuleWithProviders } from '@angular/core';
+import { Routes, RouterModule } from '@angular/router';
+import { HomeComponent } from './layout';
+import {LoginComponent} from './login/login.component'
+import { LayoutWithHeaderFooterComponent } from './layout/layout-with-header-footer/layout-with-header-footer.component';
+
+const xjtRoutes: Routes = [
+  {
+    path: '', component: LayoutWithHeaderFooterComponent,
+        children: [
+          {path: '', redirectTo:'/home',pathMatch:'full' },    
+          {path:'home',component:HomeComponent},
+          {path:'login',component:LoginComponent},
+
+        ]
+    },  
+    {
+     path: 'crew',
+     loadChildren: () => import('./crewmember-erj/crewmember-erj.module').then(mod => mod.CrewmemberErjModule)
+    },
+    {
+      path: 'safety',
+      loadChildren: () => import('./safety/safety.module').then(mod => mod.SafetyModule)
+    },
+    {
+      path: 'maintenance',
+      loadChildren: () => import('./maintenance/maintenance.module').then(mod => mod.MaintenanceModule)
+    },
+    // {
+    //   path: 'people',
+    //   loadChildren: () => import('./people/scholarshipprogram/scholarship.module').then(mod => mod.ScholarshipModule)
+    // },
+
+    {
+      path: 'FerryFlight/search',
+      loadChildren: () => import('./maintenance/maintenance-ferry-flight/maintenance-ferry-flight.module').then(mod => mod.MaintenanceFerryFlightModule)
+    },
+    {
+      path: 'OnCall/LandingPage',
+      loadChildren: () => import('./maintenance/maintenance-ferry-flight/maintenance-ferry-flight.module').then(mod => mod.MaintenanceFerryFlightModule)
+    },
+    {
+      path: 'unitedoperations',
+      loadChildren: () => import('./united-operations/united-operations.module').then(mod => mod.UnitedOperationsModule)
+    },
+    {
+      path: 'administration',
+      loadChildren: () => import('./administration/administration.module').then(mod => mod.AdministrationModule)
+    },
+    {
+      path: 'travel',
+      loadChildren: () => import('./travel/crew-member/crew-member.module').then(mod => mod.CrewMemberModule)
+    },
+    {
+      path: 'mxplanning',
+      loadChildren: () => import('./mx-planning/mx-planning.module').then(mod => mod.MxPlanningModule)
+    },
+    {
+      path: 'scholarship',
+      loadChildren: ()=> import('./people/scholarshipprogram/scholarship.module').then(mod => mod.ScholarshipModule)
+    }
+
+];
+export const XjtRouting: ModuleWithProviders =
+  RouterModule.forRoot(xjtRoutes, { useHash: false });
+
+
+
+
+

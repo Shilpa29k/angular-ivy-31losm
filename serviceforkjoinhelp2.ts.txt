@@ -1,0 +1,1168 @@
+import { EndPoint, DataService, methods } from '../../../backend';
+import { map, catchError } from 'rxjs/operators';
+import { Observable } from 'rxjs/internal/Observable';
+import { forkJoin } from 'rxjs/internal/observable/forkJoin';
+import { CreateStationProfileData, StationCommentModel } from '../../models/administration/station-profile-new.model';
+import { HttpParams } from '@angular/common/http';
+import { StationSearchModel } from '../../models/administration/station-profile-search-model';
+import { Subject } from 'rxjs/internal/Subject';
+import { RegionalDirectorsModel, RegionsModel } from '../../models/administration/station-profile-region-model';
+import { MarketSynopsisCategoriesModel, MarketSynopsisTemplateModel, MarketSynopsisModel } from '../../models/administration/market-synopsis.model';
+import { AuditModel } from '../../models';
+import { ContactInfo, VendorContact, AddContactInfo } from '../../models/administration/Contact-info.model';
+import { PersonnelModel } from '../../models/administration/station-profile-personnel.model';
+
+export class StationProfileNewService {
+
+  constructor(private dataService: DataService) { }
+
+  stationSearchFormData = new Subject<StationSearchModel>();
+
+  /**
+   * @method getStationData
+   * @description
+   * Method is used to get all existing station names from database .
+   */
+  getStationData(): Observable<any> {
+    const url = EndPoint.STATIONPROFILE + 'GetStation';
+    return this.dataService.request(url, methods.GET)
+      .pipe(map(result => {
+        return result.response;
+      }),
+        catchError(error => { return Observable.throw(error); })
+      );
+  }
+
+  /**
+   * @method getStationTypeData
+   * @description
+   * Method is used to get station type dropdown values from database .
+   */
+
+  getStationTypeData() {
+    const url = EndPoint.STATIONPROFILE + 'GetType';
+    return this.dataService.request(url, methods.GET)
+      .pipe(map(result => {
+        return result.response;
+      }),
+        catchError(error => { return Observable.throw(error); })
+      );
+  }
+
+  /**
+     * @method getRegionData
+     * @description
+     * Method is used to get region dropdown values from database .
+     */
+
+  getRegionData() {
+    const url = EndPoint.STATIONPROFILE + 'Region';
+    return this.dataService.request(url, methods.GET)
+      .pipe(map(result => {
+        return result.response;
+      }),
+        catchError(error => { return Observable.throw(error); })
+      );
+  }
+
+
+  /**
+     * @method getAirlineData
+     * @description
+     * Method is used to get airline dropdown values from database .
+     */
+
+  getAirlineData() {
+    const url = EndPoint.STATIONPROFILE + 'GetAirline';
+    return this.dataService.request(url, methods.GET)
+      .pipe(map(result => {
+        return result.response;
+      }),
+        catchError(error => { return Observable.throw(error); })
+      );
+  }
+
+  /**
+   * @method getHandledData
+   * @description
+   * Method is used to get handled dropdown down values from database .
+   */
+
+  getHandledData() {
+    const url = EndPoint.STATIONPROFILE + 'Handled';
+    return this.dataService.request(url, methods.GET)
+      .pipe(map(result => {
+        return result.response;
+      }),
+        catchError(error => { return Observable.throw(error); })
+      );
+  }
+
+  /**
+  * @method postHandledData
+  * @description
+  * .
+  */
+
+  postHandledData(carrierName) {
+    const url = EndPoint.STATIONPROFILE + 'Handled';
+    return this.dataService.request(url, methods.POST, carrierName)
+      .pipe(map(result => {
+        return result.response;
+      }),
+        catchError(error => { return Observable.throw(error); })
+      );
+  }
+
+  /**
+ * @method editHandledData
+ * @description
+ * Method is used to get handled dropdown down values from database .
+ */
+  /**
+  * @method postHandledData
+  * @description
+  * Method is used to get handled dropdown down values from database .
+  */
+
+  editHandledData(carrierInfo) {
+    const url = EndPoint.STATIONPROFILE + 'Handled';
+    return this.dataService.request(url, methods.PUT, carrierInfo)
+      .pipe(map(result => {
+        return result.response;
+      }),
+        catchError(error => { return Observable.throw(error); })
+      );
+  }
+  /**
+      * @method
+      * @description
+      * Method is used to concat all the response values.
+      */
+
+  getInitialData(): Observable<any[]> {
+    let response1 = this.getStationData();
+    let response2 = this.getStationTypeData();
+    let response3 = this.getRegionData();
+    let response4 = this.getAirlineData();
+    let response5 = this.getHandledData();
+    return forkJoin([response1, response2, response3, response4, response5]);
+  }
+
+  /**
+  * @method
+  * @description
+  * Method is used to create station profile in database.
+  */
+  createStationProfile(createSearchProfileData: CreateStationProfileData): Observable<any> {
+
+    const url = EndPoint.STATIONPROFILE + 'AddStation';
+    return this.dataService.request(url, methods.POST, createSearchProfileData)
+      .pipe(map(result => {
+        return result.response;
+      }),
+        catchError(error => {
+          return Observable.throw(error);
+        })
+      )
+  }
+
+
+
+  /**
+  * @method stationExistOrNot
+  * @description
+  * Method is used to check if station already exist in database.
+  */
+
+  stationExistOrNot(createSearchProfileData: CreateStationProfileData): Observable<any> {
+
+    const url = EndPoint.STATIONPROFILE + 'StationExistOrNot';
+    return this.dataService.request(url, methods.POST, createSearchProfileData)
+      .pipe(map(result => {
+        return result.response;
+      }),
+        catchError(error => {
+          return Observable.throw(error);
+        })
+      )
+  }
+
+
+  /**
+ * @method getUpdateStationData
+ * @description
+ * Method is used to get existing station details from database.
+ */
+
+  // getUpdateStationData(stationSearchModel: StationSearchModel): Observable<any> {
+
+  //   const url = EndPoint.STATIONPROFILE + 'GetStations';
+  //   return this.dataService.request(url, methods.POST, stationSearchModel)
+  //     .pipe(map(result => {
+  //       return result.response;
+  //     }),
+  //       catchError(error => {
+  //         return Observable.throw(error);
+  //       })
+  //     )
+  // }
+
+  /*Services for REMOVE tab*/
+
+  /**
+    * @method
+    * @description
+    * Method is used to get the station profile data on the basis of search.
+    */
+  searchdata(stationsearchmodel): Observable<any> {
+    const url = EndPoint.STATIONPROFILE + 'GetStations';
+    return this.dataService.request(url, methods.POST, stationsearchmodel)
+      .pipe(map(result => {
+        return result.response;
+      }),
+        catchError(error => {
+          return Observable.throw(error);
+        })
+      )
+  }
+
+  /**
+   * @method
+   * @description
+   * Method is used to delete the station profile data .
+   */
+  deleteStation(id: number): Observable<any> {
+    const url = EndPoint.STATIONPROFILE + id;
+    return this.dataService.request(url, methods.DELETE, null, null)
+      .pipe(map(result => {
+        return result.response;
+      }),
+        catchError(error => { return Observable.throw(error); })
+      );
+  }
+
+  /**
+    * @method
+    * @description
+    * Method is used to update the station profile data.
+    */
+  updatestatus(id: number, status: boolean): Observable<any> {
+    let params = new HttpParams();
+    params = params.append('stationID', id.toString());
+    params = params.append('status', status.toString());
+    const url = EndPoint.STATIONPROFILE + 'UpdateStatus';
+    return this.dataService.request(url, methods.PUT, null, params).pipe(map(result => {
+      return result.response;
+    }),
+      catchError(error => { return Observable.throw(error); })
+    )
+  };
+  /*end*/
+  /**
+      * @method editCommentData
+      * @description
+      * Method is used to POST edited comment
+      */
+  editCommentData(commentData, stationId): Observable<StationCommentModel> {
+    const url = EndPoint.STATIONPROFILE + 'Comments/'+ stationId;
+    return this.dataService.request(url, methods.PUT, commentData).pipe(map(result => {
+      return result.response;
+    }),
+      catchError(error => { return Observable.throw(error); })
+    )
+  }
+
+
+  /**
+    * @method postCommentData
+    * @description
+    * Method is used to ADD new comment
+    */
+  postCommentData(commentData, stationId): Observable<StationCommentModel> {
+    const url = EndPoint.STATIONPROFILE + 'Comments/'+ stationId;
+    return this.dataService.request(url, methods.POST, commentData, null )
+      .pipe(map(result => {
+        return result.response;
+      }),
+        catchError(error => {
+          return Observable.throw(error);
+        })
+      )
+  }
+
+  /*Services for REGION tab*/
+
+  /**
+    * @method getdirectorlist
+    * @description
+    * Method is used to GET DIRECTOR LIST
+    */
+  getdirectorlist(): Observable<RegionalDirectorsModel[]> {
+    const url = EndPoint.STATIONPROFILE + 'RegionalDirectors';
+    return this.dataService.request(url, methods.GET)
+      .pipe(map(result => {
+        return result.response;
+      }),
+        catchError(error => {
+          return Observable.throw(error);
+        })
+      )
+  }
+
+  /**
+    * @method savedirectordata
+    * @description
+    * Method is used to save director data
+    */
+  savedirectordata(regionaldirectormodel): Observable<any> {    
+    const url = EndPoint.STATIONPROFILE + 'RegionalDirectors';
+    return this.dataService.request(url, methods.POST, regionaldirectormodel)
+      .pipe(map(result => {
+        return result.response;
+      }),
+        catchError(error => {
+          return Observable.throw(error);
+        })
+      )
+  }
+  
+  /**
+    * @method updatedirectordata
+    * @description
+    * Method is used to update director data
+    */
+  updatedirectordata(regionaldirectormodel): Observable<any> {
+    const url = EndPoint.STATIONPROFILE + 'RegionalDirectors';
+    return this.dataService.request(url, methods.PUT, regionaldirectormodel)
+      .pipe(map(result => {
+        return result.response;
+      }),
+        catchError(error => {
+          return Observable.throw(error);
+        })
+      )
+  }
+
+  /**
+    * @method getdirectorById
+    * @description
+    * Method is used to get director data on the basis of id
+    */
+  getdirectorById(directorId: number): Observable<RegionalDirectorsModel> {
+    const url = EndPoint.STATIONPROFILE + 'RegionalDirectors' + '/' + directorId;
+    return this.dataService.request(url, methods.GET)
+      .pipe(map(result => {
+        return result.response;
+      }),
+        catchError(error => {
+          return Observable.throw(error);
+        })
+      )
+  }
+
+   /**
+    * @method getregionlist
+    * @description
+    * Method is used to get region data
+    */
+  getregionlist(): Observable<RegionsModel[]> {
+    const url = EndPoint.STATIONPROFILE + 'RegionDetails';
+    return this.dataService.request(url, methods.GET)
+      .pipe(map(result => {
+        return result.response;
+      }),
+        catchError(error => {
+          return Observable.throw(error);
+        })
+      )
+  }
+  
+   /**
+    * @method saveregiondata
+    * @description
+    * Method is used to save region data
+    */
+  saveregiondata(regionsmodel): Observable<any> {
+    const url = EndPoint.STATIONPROFILE + 'Region';
+    return this.dataService.request(url, methods.POST, regionsmodel)
+      .pipe(map(result => {
+        return result.response;
+      }),
+        catchError(error => {
+          return Observable.throw(error);
+        })
+      )
+  }
+
+  /**
+    * @method updateregiondata
+    * @description
+    * Method is used to update region data
+    */
+  updateregiondata(regionsmodel): Observable<any> {
+    const url = EndPoint.STATIONPROFILE + 'Region';
+    return this.dataService.request(url, methods.PUT, regionsmodel)
+      .pipe(map(result => {
+        return result.response;
+      }),
+        catchError(error => {
+          return Observable.throw(error);
+        })
+      )
+  }
+
+  /**
+    * @method getregionById
+    * @description
+    * Method is used to get region data on the basis of id
+    */
+  getregionById(regionId: number): Observable<RegionsModel> {   
+    const url = EndPoint.STATIONPROFILE + 'RegionDetails'+ '/' + regionId;
+    return this.dataService.request(url, methods.GET)
+      .pipe(map(result => {
+        return result.response;
+      }),
+        catchError(error => {
+          return Observable.throw(error);
+        })
+      )
+  }
+
+  //end region tab
+
+  //#region MarketSynopsis
+  /**
+   * @method
+   * @description 
+   * This service method get Market synopsis categories with questions for each category from API
+   */
+  getCategories(stationId: number): Observable<MarketSynopsisCategoriesModel[]> {
+    const url = EndPoint.STATIONPROFILE + 'MarketSynopsis/Categories?stationId=' + stationId;
+    return this.dataService.request(url, methods.GET)
+      .pipe(map(result => {
+        return result.response;
+      }),
+        catchError(error => {
+          return Observable.throw(error);
+        })
+      )
+  }
+  /**
+   * @method
+   * @description
+   * This service method is used to get question details from API for a question Id.
+   * @param questionId 
+   * questionId is the parameter against which data needs to be fetched.
+   */
+  getQuestionDetails(questionId: string, stationId: string): Observable<MarketSynopsisTemplateModel> {
+    const url = EndPoint.STATIONPROFILE + 'MarketSynopsis/Question';
+    let httpParams = new HttpParams();
+    httpParams = httpParams.append('questionId', questionId);
+    httpParams = httpParams.append('stationId', stationId);
+    return this.dataService.request(url, methods.GET, null, httpParams)
+      .pipe(map(result => {
+        return result.response;
+      }),
+        catchError(error => {
+          return Observable.throw(error);
+        })
+      )
+  }
+  /**
+ * @method
+ * @description
+ * This service method is used to get question details from API for a question Id.
+ * @param questionId 
+ * questionId is the parameter against which data needs to be fetched.
+ */
+  addUpdateMarketSynopsis(marketSynopsis: MarketSynopsisModel): Observable<any> {
+    const url = EndPoint.STATIONPROFILE + 'MarketSynopsis';
+    return this.dataService.request(url, methods.PUT, marketSynopsis)
+      .pipe(map(result => {
+        return result.response;
+      }),
+        catchError(error => {
+          return Observable.throw(error);
+        })
+      )
+  }
+  //#endregion
+
+
+  /**
+ * @method getHandledDataById
+ * @description Method is used to get handled station carrier name  by id
+ * .
+ */
+
+  getHandledDataById(handledId) {
+    const url = EndPoint.STATIONPROFILE + 'Handled/' + handledId;
+
+    return this.dataService.request(url, methods.GET)
+      .pipe(map(result => {
+        return result.response;
+      }),
+        catchError(error => { return Observable.throw(error); })
+      );
+  }
+
+  //#region Audit
+  /**
+   * @method
+   * @description 
+   * This service method gets  audit data from API
+   */
+  getAuditData(): Observable<AuditModel[]> {
+    const url = EndPoint.STATIONPROFILE + 'Audit';
+    return this.dataService.request(url, methods.GET)
+      .pipe(map(result => {
+        return result.response;
+      }),
+        catchError(error => {
+          return Observable.throw(error);
+        })
+      )
+  }
+  //#endregion
+  //#region Personnel
+  /**
+   * @method
+   * @description
+   * Method is used to get personnel data of station.
+   * @param stationId 
+   */
+  getStationPersonnelData(stationId: number): Observable<PersonnelModel[]> {
+    const url = EndPoint.STATIONPROFILE + 'Personnel/' + stationId;
+    return this.dataService.request(url, methods.GET)
+      .pipe(map(result => {
+        return result.response;
+      }),
+        catchError(error => {
+          return Observable.throw(error);
+        })
+      )
+  }
+  /**
+   * @method
+   * @description
+   * Method is used to get personnel data by personnel Id.
+   * @param personnelId 
+   */
+  getPersonnelById(stationId: number, personnelId: number, ): Observable<PersonnelModel> {
+    const url = EndPoint.STATIONPROFILE + 'Personnel/' + stationId + '/' + personnelId;
+    return this.dataService.request(url, methods.GET)
+      .pipe(map(result => {
+        return result.response;
+      }),
+        catchError(error => {
+          return Observable.throw(error);
+        })
+      )
+  }
+
+  
+  getPersonnelExist( stationId: number,manager: string,): Observable<PersonnelModel> {
+    const url = EndPoint.STATIONPROFILE + 'CheckPersonnelIfExists' ;
+    let httpParams = new HttpParams();
+    httpParams = httpParams.append('stationId', stationId.toString());
+    httpParams = httpParams.append('manager', manager);
+    return this.dataService.request(url, methods.GET, null, httpParams)     
+      .pipe(map(result => {
+        return result.response;
+      }),
+        catchError(error => {
+          return Observable.throw(error);
+        })
+      )
+  }
+  /**
+   * @method
+   * @description
+   * Method is used to add new personnel entity for station.
+   * @param personnelObj 
+   */
+  addPersonnelData(personnelModel): Observable<any> {
+    const url = EndPoint.STATIONPROFILE + 'Personnel';
+    return this.dataService.request(url, methods.POST, personnelModel)
+      .pipe(map(result => {
+        return result.response;
+      }),
+        catchError(error => {
+          return Observable.throw(error);
+        })
+      )
+  }
+  /**
+   * @method
+   * @description
+   * Method is used to update existing personnel obj for station.
+   * @param personnelObj 
+   */
+  updatePersonnelData(personnelModel): Observable<any> {
+    const url = EndPoint.STATIONPROFILE + 'Personnel';
+    return this.dataService.request(url, methods.PUT, personnelModel)
+      .pipe(map(result => {
+        return result.response;
+      }),
+        catchError(error => {
+          return Observable.throw(error);
+        })
+      )
+  }
+
+  /**
+   * @method
+   * @description
+   * Method is used to delete personnel data
+   * @param personnelObj 
+   */
+
+  deletePersonnel(personnelId: number): Observable<any> {
+    const url = EndPoint.STATIONPROFILE + 'Personnel/' + personnelId;
+    return this.dataService.request(url, methods.DELETE)
+      .pipe(map(result => {
+        return result.response;
+      }),
+        catchError(error => {
+          return Observable.throw(error);
+        })
+      )
+  }
+
+ /**
+   * @method
+   * @description
+   * Method is used to get last updated data
+   */
+  getLastUpdatedData(stationId: number,type:string) {
+    const url = EndPoint.STATIONPROFILE + 'LastUpdatedData';
+    let httpParams = new HttpParams();
+    httpParams = httpParams.append('type', type);
+    httpParams = httpParams.append('stationId', stationId.toString());
+    return this.dataService.request(url, methods.GET, null, httpParams)
+      .pipe(map(result => {
+        return result.response;
+      }),
+        catchError(error => {
+          return Observable.throw(error);
+        })
+      )
+
+  }
+  //#endregion
+
+  //#Location
+  /**
+   * @method
+   * @description
+   * Method is used to get Contact data
+   * @param stationId 
+   */
+  getContactInfo(stationID: number): Observable<ContactInfo> {
+    const url = EndPoint.STATIONPROFILE + 'GetContactInfo' + '/' + stationID;
+    return this.dataService.request(url, methods.GET)
+      .pipe(map(result => {
+        return result.response;
+      }),
+        catchError(error => {
+          return Observable.throw(error);
+        })
+      )
+  }
+
+   /**
+   * @method getcontactById
+   * @description
+   * Method is used to get Contact data by id
+   */
+  getcontactById(contactID: number): Observable<AddContactInfo> {
+    const url = EndPoint.STATIONPROFILE + 'HandlerContactInformation'+ '/' + contactID;
+    return this.dataService.request(url, methods.GET)
+      .pipe(map(result => {
+        return result.response;
+      }),
+        catchError(error => {
+          return Observable.throw(error);
+        })
+      )
+  }
+
+    /**
+   * @method updateContactdata
+   * @description
+   * Method is used to update contact data
+   */
+  updateContactdata(addContactInfo): Observable<any> {
+    const url = EndPoint.STATIONPROFILE + 'HandlerContactInformation';
+    return this.dataService.request(url, methods.PUT, addContactInfo)
+      .pipe(map(result => {
+        return result.response;
+      }),
+        catchError(error => {
+          return Observable.throw(error);
+        })
+      )
+  }
+
+   /**
+   * @method saveContactdata
+   * @description
+   * Method is used to save contact data
+   */
+  saveContactdata(addContactInfo,isabovewing,isbelowwing): Observable<any> {
+    let params = new HttpParams();
+    params = params.append('IsAbove', isabovewing);
+    params = params.append('IsBelow', isbelowwing);
+
+
+    const url = EndPoint.STATIONPROFILE + 'HandlerContactInformation';
+    return this.dataService.request(url, methods.POST, addContactInfo, params)
+      .pipe(map(result => {
+        return result.response;
+      }),
+        catchError(error => {
+          return Observable.throw(error);
+        })
+      )
+  }
+
+  /**
+   * @method getVendordata
+   * @description
+   * Method is used to get vendor data
+   */
+  getVendordata(stationId:number): Observable<VendorContact[]> {
+    const url = EndPoint.STATIONPROFILE + 'station'+'/'+'VendorContact' + '/' +stationId ;
+    return this.dataService.request(url, methods.GET)
+      .pipe(map(result => {
+        return result.response;
+      }),
+        catchError(error => {
+          return Observable.throw(error);
+        })
+      )
+  }
+
+  /**
+   * @method getvendorById
+   * @description
+   * Method is used to get vendor data on the basis of id
+   */
+  getvendorById(officeId: number): Observable<VendorContact> {
+    const url = EndPoint.STATIONPROFILE + 'VendorContact'+ '/' + officeId;
+    return this.dataService.request(url, methods.GET)
+      .pipe(map(result => {
+        return result.response;
+      }),
+        catchError(error => {
+          return Observable.throw(error);
+        })
+      )
+  }
+
+  
+  /**
+   * @method saveVendordata
+   * @description
+   * Method is used to save vendor data
+   */
+  saveVendordata(vendorContactmodel): Observable<any> {    
+    const url = EndPoint.STATIONPROFILE + 'VendorContact';
+    return this.dataService.request(url, methods.POST, vendorContactmodel)
+      .pipe(map(result => {
+        return result.response;
+      }),
+        catchError(error => {
+          return Observable.throw(error);
+        })
+      )
+  }
+
+  /**
+   * @method deleteVendorContact
+   * @description
+   * Method is used to delete vendor data
+   */
+  deleteVendorContact(officeId): Observable<any> {
+    const url = EndPoint.STATIONPROFILE + 'VendorContact'+ '/' + officeId;
+    return this.dataService.request(url, methods.DELETE, null, null)
+      .pipe(map(result => {
+        return result.response;
+      }),
+        catchError(error => { return Observable.throw(error); })
+      );
+  }
+
+  /**
+   * @method deleteHandlerContact
+   * @description
+   * Method is used to delete handler data
+   */
+  deleteHandlerContact(contactID): Observable<any> {
+    const url = EndPoint.STATIONPROFILE + 'HandlerContactInformation'+ '/' + contactID;
+    return this.dataService.delete(url);
+  }
+   /**
+   * @method updateVendordata
+   * @description
+   * Method is used to update vendor data
+   */
+  updateVendordata(vendorContactmodel): Observable<any> {
+    const url = EndPoint.STATIONPROFILE + 'VendorContact';
+    return this.dataService.request(url, methods.PUT, vendorContactmodel)
+      .pipe(map(result => {
+        return result.response;
+      }),
+        catchError(error => {
+          return Observable.throw(error);
+        })
+      )
+  }
+
+  /**
+   * @method getStates
+   * @description
+   * Method is used to get states
+   */
+  getStates() {
+    const url = EndPoint.STATIONPROFILE + 'State';
+    return this.dataService.request(url, methods.GET)
+      .pipe(map(result => {
+        if (!Array.isArray(result.response)) {
+          return [result.response];
+        }
+        return result.response;
+      }),
+        catchError(error => { return Observable.throw(error); })
+      );
+  }
+  //# end Location
+  // handled location Service below
+
+  /**
+   * @method getTypeData
+   * @description
+   * Method is used to get type data
+   */
+  getTypeData(): Observable<any> {
+    const url = EndPoint.STATIONPROFILE + 'GetType';
+    return this.dataService.request(url, methods.GET)
+      .pipe(map(result => {
+        return result.response;
+      }),
+        catchError(error => { return Observable.throw(error); })
+      );
+
+  }
+
+  /**
+   * @method stationUpdateData
+   * @description
+   * Method is used to update station data
+   */
+  stationUpdateData(stationChangeInfo){
+    const url = EndPoint.STATIONPROFILE + 'StationUpdate';
+    let httpParams = new HttpParams();
+    httpParams = httpParams.append('stationId', stationChangeInfo.stationId);
+    httpParams = httpParams.append('type', stationChangeInfo.type);
+    httpParams = httpParams.append('value', stationChangeInfo.value);
+
+    return this.dataService.request(url, methods.PUT, null, httpParams)
+      .pipe(map(result => {
+        return result.response;
+      }),
+        catchError(error => { return Observable.throw(error); })
+      );
+  }
+
+   /**
+   * @method deleteHandledData
+   * @description
+   * Method is used to delete handle data
+   */
+  deleteHandledData(handledId){
+    const url = EndPoint.STATIONPROFILE + 'Handled/' + handledId;
+    return this.dataService.request(url, methods.DELETE, handledId)
+      .pipe(map(result => {
+        return result.response;
+      }),
+        catchError(error => { return Observable.throw(error); })
+      );
+  }
+
+  /**
+   * @method deleteRegionalDirector
+   * @description
+   * Method is used to delete regional director
+   */
+  deleteRegionalDirector(directorId){
+    const url = EndPoint.STATIONPROFILE + 'RegionalDirectors/' + directorId;
+
+    return this.dataService.request(url, methods.DELETE, directorId)
+      .pipe(map(result => {
+        return result.response;
+      }),
+        catchError(error => { return Observable.throw(error); })
+      );
+  }
+
+  /**
+   * @method deleteRegionById
+   * @description
+   * Method is used to delete region
+   */
+  deleteRegionById(regionsId){
+    const url = EndPoint.STATIONPROFILE + 'Region/' + regionsId;
+
+    return this.dataService.request(url, methods.DELETE, regionsId)
+      .pipe(map(result => {
+        return result.response;
+      }),
+        catchError(error => { return Observable.throw(error); })
+      );
+  }
+
+
+  
+  getStationById(Id: number): Observable<any> {   
+    const url = EndPoint.STATIONPROFILE + 'StationDetails/' + Id;
+    return this.dataService.request(url, methods.GET)
+      .pipe(map(result => {
+        return result.response;
+      }),
+        catchError(error => {
+          return Observable.throw(error);
+        })
+      )
+  }
+
+}
+
+--------------------------------------------------
+import { Component, OnInit } from '@angular/core';
+import { CrewMemberDataModel } from 'src/app/shared/models/safety/crewmember-data.model';
+import { FormGroup, FormBuilder, Validators } from '@angular/forms';
+import { RandomTestingService } from 'src/app/shared';
+import { Router, ActivatedRoute } from '@angular/router';
+import { ExportToCsv } from 'export-to-csv';
+import { DatePipe } from '@angular/common';
+import { stringify } from 'querystring';
+import { CrewScheduleDataModel } from 'src/app/shared/models/safety/crew-schedule.model';
+
+@Component({
+  selector: 'xjt-crew-availability',
+  templateUrl: './crew-availability.component.html',
+  styleUrls: ['./crew-availability.component.css']
+})
+/**
+ * @class
+ * @description 
+ * This class handles crewmember availability and schedule test of drug alcohol
+ */
+export class CrewAvailabilityComponent implements OnInit {
+  crewMemberAvailabiltyForm: FormGroup;
+  crewmemberDataList = null as CrewMemberDataModel[];
+  submitted: boolean = false;
+  quarterId: number;
+  currentDate: Date = new Date();
+  /**
+   * @constructor
+   * @description
+   * used to inject dependencies
+   * @param formBuilder 
+   * @param randomTestingservice 
+   * @param router 
+   * @param route 
+   * @param datePipe 
+   */
+  constructor(private formBuilder: FormBuilder, private randomTestingservice: RandomTestingService,
+    private router: Router, private route: ActivatedRoute, private datePipe: DatePipe) { }
+  /**
+   * @method
+   * @description
+   * This method is used to initialize component.
+   */
+  ngOnInit() {
+    if (this.route.snapshot.queryParamMap.keys.length > 0 && this.route.snapshot.queryParamMap.has('quarterId')) {
+      this.quarterId = Number(this.route.snapshot.queryParamMap.get('quarterId'));
+    }
+    this.createForm();
+  }
+  /**
+    * @method
+    * @description 
+    * This method is used for creating formgroup object
+    */
+  createForm() {
+    this.crewMemberAvailabiltyForm = this.formBuilder.group({
+      quarterId: [this.quarterId],
+      station: ['', Validators.required],
+      searchDate: [this.currentDate],
+      minGroundTime: [2],
+      start: [true],
+      end: [true]
+    });
+  }
+  /**
+   * @method
+   * @description
+   * This method is used to load crewmember availability data on the basis of filters
+   */
+  getCrewAvailabiltyData() {
+    this.submitted = true;
+    if (this.crewMemberAvailabiltyForm.valid) {
+      this.crewmemberDataList = [];
+      this.crewMemberAvailabiltyForm.value.searchDate = this.crewMemberAvailabiltyForm.value.searchDate != null && this.crewMemberAvailabiltyForm.value.searchDate != ''
+        ? new Date(this.crewMemberAvailabiltyForm.value.searchDate).toLocaleDateString('en-US').replace(/[^ -~]/g, '') : null;
+      this.randomTestingservice.getCrewAvailabiltyData(this.crewMemberAvailabiltyForm.value).subscribe(
+        result => {
+          if (result != null) {
+            this.crewmemberDataList = result;
+          }
+          else {
+            this.crewmemberDataList = [];
+          }
+        });
+    }
+    else {
+      return false;
+    }
+  }
+  /**
+   * @method
+   * @description
+   * This metod is used to navigate to crewmember schedule screen.
+   */
+  showCrewSchedule(empNo: string) {
+    let searchDate = this.crewMemberAvailabiltyForm.value.searchDate != null && this.crewMemberAvailabiltyForm.value.searchDate != ''
+      ? new Date(this.crewMemberAvailabiltyForm.value.searchDate).toLocaleDateString('en-US').replace(/[^ -~]/g, '') : null;
+    window.open('safety/pool/crewmember-schedule?empNo=' + empNo + '&searchDate=' + searchDate, '_blank', '', false);
+  }
+  /**
+   * @method
+   * @description
+   * This method is used to schedule drug alcohol test.
+   * @param randomId 
+   */
+  scheduleTest(randomId: string) {
+    let searchDate = this.crewMemberAvailabiltyForm.value.searchDate != null && this.crewMemberAvailabiltyForm.value.searchDate != ''
+      ? new Date(this.crewMemberAvailabiltyForm.value.searchDate).toLocaleDateString('en-US').replace(/[^ -~]/g, '') : null;
+    this.randomTestingservice.scheduleTest(randomId, searchDate).subscribe(
+      result => {
+        if (result != null) {
+          this.getCrewAvailabiltyData();
+        }
+      });
+  }
+  /**
+   * @method
+   * @description
+   * This method is used to export grid data into csv format file.
+   */
+  exportToCSV() {
+    const options = {
+      fieldSeparator: ',',
+      quoteStrings: '"',
+      decimalSeparator: '.',
+      showLabels: true,
+      filename: 'CrewAvailability',
+      useTextFile: false,
+      useBom: true,
+      headers: ['TestStation', 'EmpNo', 'FullName', 'PositionCode', 'Domicile', 'PrevStation', 'ArrivalFlight', 'ArrivalTime',
+        'DeptFlight', 'DeptTime', 'GroundTime', 'ScheduledDate', 'Deadhead', 'RequireAlcoholTest']
+    };
+    let data = null;
+    if (this.crewmemberDataList.length > 0) {
+      var that = this;
+      data = this.crewmemberDataList.map(function (item) {
+        return {
+          testStation: item.testStation,
+          empNo: item.empNo == null ? '' : item.empNo,
+          fullName: item.fullName == null ? '' : item.fullName,
+          positionCode: item.positionCode,
+          domicile: item.domicile,
+          prevStation: item.prevStation == null ? '' : item.prevStation,
+          arrivalFlight: item.arrivalFlight,
+          arrivalTime: item.arrivalTime == null ? '' : that.datePipe.transform(item.arrivalTime, 'MM/dd/yyyy h:mm:ss a'),
+          deptFlight: item.deptFlight,
+          deptTime: item.deptTime == null ? '' : that.datePipe.transform(item.deptTime, 'MM/dd/yyyy h:mm:ss a'),
+          groundTime: item.groundTime == null ? '' : item.groundTime,
+          scheduledDate: item.scheduledDate == null ? '' : that.datePipe.transform(item.scheduledDate, 'MM/dd/yyyy h:mm:ss a'),
+          deadhead: item.deadhead == 'Yes' ? item.deadhead : '',
+          requireAlcoholTest: item.requireAlcoholTest == 'Yes' ? 'TRUE' : 'FALSE'
+        }
+      });
+    }
+    else {
+      data = [{
+        testStation: '', empNo: '', fullName: '', positionCode: '', domicile: '', prevStation: '', arrivalFlight: '', arrivalTime: '', deptFlight: '', arrival: '', departure: '',
+        deptTime: '', groundTime: '', scheduledDate: '', randomId: '', deadhead: '', requireAlcoholTest: ''
+      }]
+    }
+    const csvExporter = new ExportToCsv(options);
+    csvExporter.generateCsv(data);
+  }
+
+  /**
+  * @method
+  * @description
+  * This method is used for external sorting on grid columns.
+  */
+  sortingCallback(columnProp: string, direction: string) {
+    var list = new Map<string, CrewMemberDataModel[]>();
+    let sortedDataList = [] as CrewMemberDataModel[];
+    list = this.groupBy(this.crewmemberDataList, data => data.testStation);
+    list.forEach((value: CrewMemberDataModel[], key: string) => {   
+      value.sort(this.compareValues(columnProp, direction));   
+      sortedDataList = sortedDataList.concat(value);
+    });
+    this.crewmemberDataList = sortedDataList;
+  }
+  /**
+   * @method
+   * @description
+   * This method is used for group the array of objects on the basis of key of object .
+   */
+  groupBy(list: CrewMemberDataModel[], keyGetter: any) {
+    const map = new Map();
+    list.forEach((item) => {
+      const key = keyGetter(item);
+      const collection = map.get(key);
+      if (!collection) {
+        map.set(key, [item]);
+      } else {
+        collection.push(item);
+      }
+    });
+    return map;
+  }
+  /**
+ * @method
+ * @description
+ * This method is used for sorting .
+ */
+  compareValues(key: string, order: string = 'asc') {
+    return function innerSort(a: any, b: any) {
+      if (!a.hasOwnProperty(key) || !b.hasOwnProperty(key)) {
+        // property doesn't exist on either object
+        return 0;
+      }
+      const varA = (typeof a[key] === 'string')
+        ? a[key].toUpperCase() : (typeof a[key] === 'object' && a[key] == null) ? '' : a[key];
+      const varB = (typeof b[key] === 'string')
+        ? b[key].toUpperCase() : (typeof b[key] === 'object' && b[key] == null) ? '' : b[key];
+      let comparison = 0;
+      if (varA > varB) {
+        comparison = 1;
+      } else if (varA < varB) {
+        comparison = -1;
+      }
+      return (
+        (order === 'desc') ? (comparison * -1) : comparison
+      );
+    };
+  }
+
+}
+

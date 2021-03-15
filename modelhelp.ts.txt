@@ -1,0 +1,57 @@
+/**
+ * @interface MarketSynopsisCategoriesModel
+ * @description
+ * MarketSynopsisCategoriesModel interface - contain the MarketSynopsisCategoriesModel entity properties for particular station 
+ */
+export interface MarketSynopsisCategoriesModel {
+    id: number;
+    categoryName: string;
+    categoryIndex: number;
+    marketSynopsisTemplate: MarketSynopsisTemplateModel[];
+}
+
+/**
+ * @interface MarketSynopsisTemplateModel
+ * @description
+ * MarketSynopsisTemplateModel interface - contain the MarketSynopsisTemplateModel entity properties for particular station 
+ */
+export interface MarketSynopsisTemplateModel {
+    id: number;
+    categoryId: number;
+    question: string;
+    questionIndex: number;
+    answerType: string;
+    maxChars: string;
+    width: string;
+    isActive: boolean;
+    ddlid: number;
+    isReadOnly: boolean;
+    answerForSpecificStation: string;
+    marketSynopsisDdltemplate: MarketSynopsisDdltemplateModel[];
+}
+
+/**
+ * @interface MarketSynopsisDdltemplateModel
+ * @description
+ * MarketSynopsisDdltemplateModel interface - contain the MarketSynopsisDdltemplateModel entity properties for particular station 
+ */
+export interface MarketSynopsisDdltemplateModel {
+    id: number;
+    ddlid: number;
+    ddlindex: number;
+    ddltext: string;
+    ddlvalue: string;
+}
+
+/**
+ * @interface MarketSynopsisModel
+ * @description
+ * MarketSynopsisModel interface - contain the MarketSynopsisModel entity properties for particular station 
+ */
+export interface MarketSynopsisModel {
+    id: number;
+    stationId: number;
+    questionId: number;
+    value: string;
+
+}

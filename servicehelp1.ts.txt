@@ -1,0 +1,210 @@
+import { Injectable } from '@angular/core';
+import { EndPoint, DataService, methods } from '../../../backend';
+import { Observable} from 'rxjs';
+import { map, catchError } from 'rxjs/operators';
+import { HttpParams } from '@angular/common/http';
+import { Hotel } from '../..';
+
+
+@Injectable()
+export class HotelAdminERJService {
+  constructor(private dataService: DataService) { }
+
+  /**
+   * @method
+   * @description
+   * Method is used to get Airport Code from database.
+   */
+  getAirportCode(): Observable<string[]> {
+    const url = EndPoint.HOTELADMINERJ + 'GetAirportCode';
+    return this.dataService.get<string[]>(url);
+  }
+  /**
+    * @method
+    * @description
+    * Method is used to get Hotel data by airport code from API.
+    */
+  getHotelData(airportCode): Observable<Hotel[]> {
+    const url = EndPoint.HOTELADMINERJ + 'Hotel';
+    let httpParams = new HttpParams();
+    httpParams = httpParams.append('airportCode', airportCode);
+    return this.dataService.request(url, methods.GET, null, httpParams)
+      .pipe(map(result => {
+        return result.response;
+      }),
+        catchError(error => { return Observable.throw(error); })
+      );
+  }
+  /**
+   * @method
+   * @description
+   * Method is used to get Hotel data by Id from API.
+   */
+  getHotelDataById(hotelId: number): Observable<any> {
+    const url = EndPoint.HOTELADMINERJ + 'Hotel/' + hotelId;
+    return this.dataService.request(url, methods.GET)
+      .pipe(map(result => {
+        return result.response;
+      }),
+        catchError(error => { return Observable.throw(error); })
+      );
+  }
+  /**
+   * @method
+   * @description
+   * Method is used to add new Hotel entry.
+   */
+  addHotel(hotel: Hotel): Observable<any> {
+    const url = EndPoint.HOTELADMINERJ + 'Hotel';
+    return this.dataService.request(url, methods.POST, hotel)
+      .pipe(map(result => {
+        return result.response;
+      }),
+        catchError(error => { return Observable.throw(error); })
+      );
+  }
+  /**
+   * @method
+   * @description
+   * Method is used to update Hotel data.
+   */
+  updateHotel(hotel: Hotel): Observable<any> {
+    const url = EndPoint.HOTELADMINERJ + 'Hotel';
+    return this.dataService.request(url, methods.PUT, hotel)
+      .pipe(map(result => {
+        return result.response;
+      }),
+        catchError(error => { return Observable.throw(error); })
+      );
+  }
+  /**
+   * @method
+   * @description
+   * Method is used to delete Hotel data .
+   */
+  deleteHotel(hotelId: number): Observable<any> {
+    const url = EndPoint.HOTELADMINERJ + 'Hotel/' + hotelId;
+    return this.dataService.request(url, methods.DELETE)
+      .pipe(map(result => {
+        return result.response;
+      }),
+        catchError(error => { return Observable.throw(error); })
+      );
+  }
+
+/**
+   * @method
+   * @description
+   * Method is used to get Hotel Report data by report type.
+   */
+  getReportData(filterModel: any) {
+    const url = EndPoint.HOTELADMINERJ + 'GetReportByReportType';
+    return this.dataService.request(url, methods.POST, filterModel)
+      .pipe(map(result => {
+        return result.response;
+      }),
+        catchError(error => { return Observable.throw(error); })
+      );
+  }
+/**
+   * @method
+   * @description
+   * Method is used to get Hotel Group data by group name.
+   */
+  getHotelGroup() {
+    const url = EndPoint.HOTELADMINERJ + 'GetHotelGroupsForReportByGroupName';
+    return this.dataService.request(url, methods.GET, null, null)
+      .pipe(map(result => {
+        return result.response;
+      }),
+        catchError(error => { return Observable.throw(error); })
+      );
+  }
+
+  /**
+   * @method
+   * @description
+   * Method is used to add new  Hotel rate entry.
+   */
+  addHotelRate(rate): Observable<any> {
+    console.log(rate);
+    debugger;
+    const url = EndPoint.HOTELADMINERJ + 'AddHotelRate';
+    return this.dataService.request(url, methods.POST, rate)
+      .pipe(map(result => {
+        return result.response;
+      }),
+        catchError(error => { return Observable.throw(error); })
+      );
+  }
+
+  /**
+   * @method
+   * @description
+   * Method is used to update new  Hotel rate entry.
+   */
+  updateHotelRate(rate): Observable<any> {
+    
+    const url = EndPoint.HOTELADMINERJ + 'UpdateHotelRate';
+    return this.dataService.request(url, methods.PUT, rate)
+      .pipe(map(result => {
+       
+        return result.response;
+      }),
+        catchError(error => { return Observable.throw(error); })
+      );
+  }
+
+  /**
+   * @method
+   * @description
+   * Method is used to get Hotel rate data by rateId and hotelId.
+   */
+  getHotelRate(rateId,hotelId) {
+    let httpParams = new HttpParams();
+    httpParams = httpParams.append('rateId', rateId);
+    httpParams = httpParams.append('hotelId', hotelId);
+    const url = EndPoint.HOTELADMINERJ + 'GetHotelRateById';
+    return this.dataService.request(url, methods.GET, null, httpParams)
+      .pipe(map(result => {
+        return result.response;
+      }),
+        catchError(error => { return Observable.throw(error); })
+      );
+  }
+
+  /**
+   * @method
+   * @description
+   * Method is used to get Hotel rate data by rateId and hotelId.
+   */
+  getHotelRateByHotelId(hotelId) {
+    let httpParams = new HttpParams();
+    httpParams = httpParams.append('hotelId', hotelId);
+    const url = EndPoint.HOTELADMINERJ + 'GetHotelRateByHotelId';
+    return this.dataService.request(url, methods.GET, null, httpParams)
+    .pipe(map(result => {
+      return result.response;
+    }),
+      catchError(error => { return Observable.throw(error); })
+    );
+  }
+
+  /**
+   * @method
+   * @description
+   * Method is used to delete Hotel rate data by rateId and hotelId.
+   */
+  deleteHotelRate(rateId,hotelId) {
+    let httpParams = new HttpParams();
+    httpParams = httpParams.append('rateId', rateId);
+    httpParams = httpParams.append('hotelId', hotelId);
+    const url = EndPoint.HOTELADMINERJ + 'DeleteHotelRate';
+    return this.dataService.request(url, methods.DELETE, null, httpParams)
+      .pipe(map(result => {
+        return result.response;
+      }),
+        catchError(error => { return Observable.throw(error); })
+      );
+  }
+}

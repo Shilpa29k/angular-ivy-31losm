@@ -1,0 +1,26 @@
+import { NgModule } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { LayoutWithoutHeaderFooterComponent } from './../../layout/layout-without-header-footer/layout-without-header-footer.component';
+import { CrewMemberRoutingModule } from './crew-member-routing.module';
+import { KcmInquiryComponent } from './kcm-inquiry/kcm-inquiry.component';
+import { CoreModule } from 'src/app/core/core.module';
+import { SharedModule } from 'src/app/shared/shared.module';
+import { LayoutModule } from 'src/app/layout/layout.module';
+import { CassComponent } from './cass/cass.component';
+
+
+@NgModule({
+  declarations: [ KcmInquiryComponent, CassComponent],
+  imports: [
+    CommonModule,
+    CrewMemberRoutingModule, 
+    CoreModule,
+    SharedModule,
+    LayoutModule
+  ],
+  exports:[
+    KcmInquiryComponent,
+   
+  ]
+})
+export class CrewMemberModule { }

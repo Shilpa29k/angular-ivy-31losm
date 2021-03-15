@@ -1,0 +1,36 @@
+import { NgModule, ModuleWithProviders } from '@angular/core';
+import { Routes, RouterModule } from '@angular/router';
+import { LayoutWithHeaderFooterComponent,LayoutWithoutHeaderFooterComponent } from '../../layout';
+import { HotelListComponent } from './hotel-list.component';
+import { HotelRateComponent } from './hotel-rate.component';
+import { ManageHotelComponent} from './manage-hotel.component';
+import { HotelAdminReportsComponent } from './hotel-admin-reports.component';
+import { ManageHotelReportsComponent } from './manage-hotel-reports.component';
+import { EditManageHotelComponent } from './edit-manage-hotel.component';
+
+const HotelAdminErjRoutes: Routes = [
+    {
+        path: '', component: LayoutWithoutHeaderFooterComponent,
+        children: [
+           
+            { path: 'manage-hotel/:HotelId/:title', component: ManageHotelComponent },
+            { path: 'Add-hotel/:HotelId/:AirportCode', component: ManageHotelComponent },
+            { path: 'Add-hotel/:HotelId', component: ManageHotelComponent },      
+            
+            {path:'hotel-reports', component: HotelAdminReportsComponent}, 
+            {path:'manage-reports', component:ManageHotelReportsComponent}, 
+            {path:'edit-reports', component:EditManageHotelComponent},
+            {path:'hotel-rate',component:HotelRateComponent}
+        ],
+    },
+    {
+        path: '', component: LayoutWithHeaderFooterComponent,
+        children: [
+            {
+                path: 'hotel-list', component: HotelListComponent,
+             
+            }
+        ],
+    },
+]
+export const HotelAdminErjRouting: ModuleWithProviders = RouterModule.forChild(HotelAdminErjRoutes);
